@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>VoyageVista - Destination</title>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #F8F6F1; color: #1A1A2E; }
+
+        .navbar {
+            background: #1B2A4A;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-logo { color: white; font-size: 22px; font-weight: bold; cursor: pointer; }
+        .navbar-links a { color: #D6E4F0; text-decoration: none; margin-left: 25px; font-size: 14px; }
+        .navbar-btn {
+            background: transparent; color: white; border: 1px solid white;
+            padding: 8px 16px; cursor: pointer; border-radius: 4px; margin-left: 10px; font-size: 13px;
+        }
+
+        /* HERO DESTINATION */
+        .dest-hero {
+            height: 320px;
+            background: #1B2A4A;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .dest-hero-overlay {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(transparent, rgba(0,0,0,0.6));
+            padding: 30px 40px 20px;
+            color: white;
+        }
+        .breadcrumb { font-size: 12px; color: #D6E4F0; margin-bottom: 8px; }
+        .breadcrumb a { color: #D6E4F0; text-decoration: none; }
+        .dest-hero-nom { font-size: 36px; font-weight: bold; }
+        .dest-hero-pays { font-size: 16px; color: #D6E4F0; margin-top: 5px; }
+
+        /* BADGES */
+        .badges-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .badge-navy { background: #1B2A4A; color: white; }
+        .badge-light { background: rgba(255,255,255,0.2); color: white; }
+        .badge-success { background: #D5F0E4; color: #1A6B4A; }
+        .badge-warning { background: #FDE8D0; color: #C75B00; }
+
+        /* LAYOUT */
+        .layout { display: flex; gap: 25px; padding: 30px 40px; align-items: flex-start; }
+        .content-left { flex: 1; }
+
+        /* ONGLETS */
+        .onglets { display: flex; border-bottom: 2px solid #E2DDD6; margin-bottom: 25px; }
+        .onglet { padding: 12px 20px; cursor: pointer; font-size: 14px; color: #6B7280; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+        .onglet.active { color: #1B2A4A; font-weight: bold; border-bottom: 2px solid #1B2A4A; }
+
+        /* HOTELS */
+        .hotel-card { background: white; border-radius: 8px; border: 1px solid #E2DDD6; display: flex; margin-bottom: 15px; overflow: hidden; }
+        .hotel-img { width: 120px; height: 120px; background: #D6E4F0; background-size: cover; background-position: center; flex-shrink: 0; }
+        .hotel-body { padding: 15px; flex: 1; display: flex; justify-content: space-between; align-items: center; }
+        .hotel-info { flex: 1; }
+        .hotel-nom { font-size: 15px; font-weight: bold; color: #1A1A2E; margin-bottom: 4px; }
+        .hotel-type { font-size: 12px; color: #6B7280; margin-bottom: 6px; }
+        .hotel-etoiles { color: #BA7517; font-size: 13px; margin-bottom: 6px; }
+        .hotel-equip { font-size: 11px; color: #6B7280; }
+        .hotel-prix-bloc { text-align: right; }
+        .hotel-prix { font-size: 18px; font-weight: bold; color: #1B2A4A; }
+        .hotel-prix-label { font-size: 11px; color: #6B7280; }
+        .btn-reserver { background: #1B2A4A; color: white; border: none; padding: 8px 18px; border-radius: 4px; cursor: pointer; font-size: 13px; margin-top: 8px; display: block; }
+        .btn-reserver:hover { background: #2C3E6B; }
+
+        /* TRANSPORTS */
+        .transport-card { background: white; border-radius: 8px; border: 1px solid #E2DDD6; padding: 15px 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 20px; }
+        .transport-icon { font-size: 28px; flex-shrink: 0; }
+        .transport-info { flex: 1; }
+        .transport-trajet { font-size: 14px; font-weight: bold; color: #1A1A2E; }
+        .transport-details { font-size: 12px; color: #6B7280; margin-top: 3px; }
+        .transport-dispo { font-size: 11px; margin-top: 4px; }
+        .transport-prix-bloc { text-align: right; }
+        .transport-prix { font-size: 18px; font-weight: bold; color: #1B2A4A; }
+        .transport-prix-label { font-size: 11px; color: #6B7280; }
+        .btn-selectionner { background: white; color: #1B2A4A; border: 1px solid #1B2A4A; padding: 7px 15px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 6px; display: block; }
+
+        /* ACTIVITES */
+        .activite-card { background: white; border-radius: 8px; border: 1px solid #E2DDD6; padding: 15px; margin-bottom: 12px; display: flex; gap: 15px; align-items: center; }
+        .activite-icon { font-size: 32px; flex-shrink: 0; }
+        .activite-info { flex: 1; }
+        .activite-nom { font-size: 14px; font-weight: bold; color: #1A1A2E; margin-bottom: 4px; }
+        .activite-details { font-size: 12px; color: #6B7280; }
+        .activite-prix-bloc { text-align: right; }
+        .activite-prix { font-size: 16px; font-weight: bold; color: #1B2A4A; }
+        .activite-label { font-size: 11px; color: #6B7280; }
+        .btn-ajouter { background: #1B2A4A; color: white; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 6px; }
+        .btn-ajouter.ajoute { background: #1A6B4A; }
+
+        /* AVIS */
+        .avis-card { background: white; border-radius: 8px; border: 1px solid #E2DDD6; padding: 15px; margin-bottom: 12px; }
+        .avis-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .avis-auteur { font-size: 13px; font-weight: bold; color: #1A1A2E; }
+        .avis-date { font-size: 11px; color: #6B7280; }
+        .avis-note { color: #BA7517; font-size: 13px; margin-bottom: 6px; }
+        .avis-texte { font-size: 13px; color: #6B7280; line-height: 1.5; }
+
+        /* WIDGET DROITE */
+        .widget-resa { width: 300px; flex-shrink: 0; position: sticky; top: 20px; }
+        .widget-card { background: white; border-radius: 8px; border: 2px solid #1B2A4A; padding: 20px; }
+        .widget-titre { font-size: 15px; font-weight: bold; color: #1B2A4A; margin-bottom: 15px; text-align: center; }
+        .widget-field { margin-bottom: 12px; }
+        .widget-field label { display: block; font-size: 11px; color: #6B7280; text-transform: uppercase; margin-bottom: 5px; }
+        .widget-field input { width: 100%; padding: 9px; border: 1px solid #E2DDD6; border-radius: 4px; font-size: 13px; }
+        .widget-total { border-top: 1px solid #E2DDD6; padding-top: 12px; margin-top: 12px; }
+        .widget-total-row { display: flex; justify-content: space-between; font-size: 13px; color: #6B7280; margin-bottom: 5px; }
+        .widget-total-main { display: flex; justify-content: space-between; font-size: 18px; font-weight: bold; color: #1B2A4A; margin-top: 8px; }
+        .btn-panier { width: 100%; background: #1B2A4A; color: white; border: none; padding: 13px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; margin-top: 12px; }
+        .btn-panier:hover { background: #2C3E6B; }
+        .btn-sauvegarder { width: 100%; background: white; color: #1B2A4A; border: 1px solid #1B2A4A; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 13px; margin-top: 8px; }
+
+        /* LOADING / ERREUR */
+        .loading-box { text-align: center; padding: 80px 40px; font-size: 16px; color: #6B7280; }
+
+        footer { background: #0D1117; color: #D6E4F0; text-align: center; padding: 20px; font-size: 13px; margin-top: 30px; }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const API_URL = "http://localhost/web2026/voyagevista/backend";
+
+// ── Données locales par destination (hébergements, transports, activités, avis)
+// Organisées par id_destination pour correspondre à la BDD
+const donneesLocales = {
+    1: { // Maldives
+        imageFile: "maldives.jpg",
+        emoji: "🏝️",
+        hotels: [
+            { id:1, nom:"The Velaa Private Island", image:"images/hotels/velaa.jpg", type:"Villa sur pilotis", prix:950, etoiles:5, emoji:"🏝️", equip:"Piscine privée · Spa · Restaurant gastronomique" },
+            { id:2, nom:"Four Seasons Landaa", image:"images/hotels/four-seasons-landaa.jpg", type:"Suite de plage", prix:720, etoiles:5, emoji:"🌊", equip:"Plage privée · Plongée · Bar" },
+            { id:3, nom:"Gili Lankanfushi", image:"images/hotels/gili-lankanfushi.jpg", type:"Villa privée", prix:1200, etoiles:5, emoji:"🌴", equip:"Butler privé · Spa · Yoga" },
+            { id:4, nom:"Soneva Jani", image:"images/hotels/soneva-jani.jpg", type:"Résidence sur l'eau", prix:1450, etoiles:5, emoji:"⭐", equip:"Piscine · Cinéma en plein air · Spa" },
+        ],
+        transports: [
+            { id:1, icon:"✈️", trajet:"Paris (CDG) → Malé (MLE)", compagnie:"Air France", duree:"10h45 direct", prix:1580, places:8 },
+            { id:2, icon:"✈️", trajet:"Paris (CDG) → Malé (MLE)", compagnie:"Emirates", duree:"12h30 via Dubaï", prix:1250, places:12 },
+            { id:3, icon:"✈️", trajet:"Paris (ORY) → Malé (MLE)", compagnie:"Qatar Airways", duree:"13h via Doha", prix:1100, places:5 },
+        ],
+        activites: [
+            { id:1, nom:"Plongée récif corallien", icon:"🤿", duree:"2h", prix:85, capacite:"8 places restantes" },
+            { id:2, nom:"Excursion en bateau", icon:"⛵", duree:"3h", prix:120, capacite:"12 places restantes" },
+            { id:3, nom:"Cours de surf", icon:"🏄", duree:"1h30", prix:60, capacite:"6 places restantes" },
+            { id:4, nom:"Dîner romantique sur l'eau", icon:"🍽️", duree:"2h30", prix:200, capacite:"4 places restantes" },
+            { id:5, nom:"Spa & Massage", icon:"💆", duree:"1h", prix:150, capacite:"Disponible" },
+        ],
+        avis: [
+            { id:1, auteur:"Sophie B.", note:5, date:"Mars 2026", texte:"Séjour absolument magique ! La villa sur pilotis était un rêve. Le service est impeccable et la vue sur le lagon est à couper le souffle." },
+            { id:2, auteur:"Marc D.", note:5, date:"Février 2026", texte:"Destination de rêve pour notre anniversaire de mariage. Tout était parfait, de l'accueil au départ." },
+            { id:3, auteur:"Laura K.", note:4, date:"Janvier 2026", texte:"Extraordinaire ! Les fonds marins sont incroyables. Je recommande vivement la plongée." },
+        ]
+    },
+    2: { // Bali
+        imageFile: "bali.jpg",
+        emoji: "🌺",
+        hotels: [
+            { id:5, nom:"The Mulia Bali", image:"images/hotels/mulia-bali.jpg", type:"Suite Royale", prix:680, etoiles:5, emoji:"🌺", equip:"3 piscines · Spa · 7 restaurants" },
+            { id:6, nom:"Amandari Resort", image:"images/hotels/amandari.jpg", type:"Villa avec piscine", prix:890, etoiles:5, emoji:"🌿", equip:"Vue rizières · Piscine privée · Butler" },
+            { id:7, nom:"COMO Uma Ubud", image:"images/hotels/como-ubud.jpg", type:"Suite Jungle", prix:520, etoiles:5, emoji:"🦜", equip:"Yoga · Spa · Restaurant biologique" },
+        ],
+        transports: [
+            { id:4, icon:"✈️", trajet:"Paris (CDG) → Denpasar (DPS)", compagnie:"Singapore Airlines", duree:"15h via Singapour", prix:890, places:14 },
+            { id:5, icon:"✈️", trajet:"Paris (CDG) → Denpasar (DPS)", compagnie:"Qatar Airways", duree:"16h via Doha", prix:820, places:9 },
+        ],
+        activites: [
+            { id:6, nom:"Randonnée rizières de Tegallalang", icon:"🌾", duree:"3h", prix:45, capacite:"10 places restantes" },
+            { id:7, nom:"Cours de cuisine balinaise", icon:"🍜", duree:"4h", prix:60, capacite:"8 places restantes" },
+            { id:8, nom:"Cérémonie temple Tanah Lot", icon:"🕌", duree:"2h", prix:35, capacite:"15 places restantes" },
+            { id:9, nom:"Rafting rivière Ayung", icon:"🚣", duree:"3h", prix:55, capacite:"12 places restantes" },
+        ],
+        avis: [
+            { id:4, auteur:"Alice M.", note:5, date:"Avril 2026", texte:"Bali est magique ! Les rizières de Tegallalang valent vraiment le détour. L'hôtel Amandari est un paradis." },
+            { id:5, auteur:"Thomas R.", note:5, date:"Mars 2026", texte:"Voyage spirituel et ressourçant. Le spa est exceptionnel et la nourriture délicieuse." },
+        ]
+    },
+    3: { // Santorini
+        imageFile: "santorini.jpg",
+        emoji: "🏛️",
+        hotels: [
+            { id:8, nom:"Canaves Oia Epitome", image:"images/hotels/canaves-oia.jpg", type:"Suite avec piscine privée", prix:780, etoiles:5, emoji:"🌅", equip:"Vue caldera · Piscine privée · Petit-déjeuner inclus" },
+            { id:9, nom:"Grace Hotel Santorini", image:"images/hotels/grace-santorini.jpg", type:"Suite Infinity", prix:620, etoiles:5, emoji:"🏛️", equip:"Piscine infinie · Spa · Restaurant gastronomique" },
+            { id:10, nom:"Mystique Resort", image:"images/hotels/mystique.jpg", type:"Villa cave", prix:950, etoiles:5, emoji:"⭐", equip:"Vue mer · Butler privé · Bar exclusif" },
+        ],
+        transports: [
+            { id:6, icon:"✈️", trajet:"Paris (CDG) → Athènes puis Santorin (JTR)", compagnie:"Air France", duree:"4h30 + ferry", prix:580, places:20 },
+            { id:7, icon:"✈️", trajet:"Paris (ORY) → Santorin (JTR)", compagnie:"Aegean Airlines", duree:"5h direct (été)", prix:420, places:15 },
+        ],
+        activites: [
+            { id:10, nom:"Croisière coucher de soleil", icon:"🛥️", duree:"3h", prix:95, capacite:"20 places restantes" },
+            { id:11, nom:"Dégustation vins Assyrtiko", icon:"🍷", duree:"2h", prix:75, capacite:"12 places restantes" },
+            { id:12, nom:"Randonnée Fira-Oia", icon:"🥾", duree:"4h", prix:30, capacite:"Disponible" },
+        ],
+        avis: [
+            { id:6, auteur:"Claire V.", note:5, date:"Mai 2026", texte:"Santorini est à la hauteur de sa réputation ! Les couchers de soleil depuis Oia sont inoubliables." },
+            { id:7, auteur:"Pierre L.", note:5, date:"Avril 2026", texte:"Romantique à souhait. Le Canaves Oia est parfait pour un séjour en amoureux." },
+        ]
+    },
+    4: { // Dubaï
+        imageFile: "dubai.jpg",
+        emoji: "🌆",
+        hotels: [
+            { id:11, nom:"Burj Al Arab", image:"images/hotels/burj-al-arab.jpg", type:"Suite Panoramique", prix:1850, etoiles:5, emoji:"🏗️", equip:"Piscine privée · Butler 24h · Hélicoptère" },
+            { id:12, nom:"Atlantis The Royal", image:"images/hotels/atlantis-royal.jpg", type:"Suite Signature", prix:1200, etoiles:5, emoji:"🌊", equip:"Aquaventure · Restaurants Michelin · Spa" },
+            { id:13, nom:"Four Seasons DIFC", image:"images/hotels/four-seasons-difc.jpg", type:"Chambre Deluxe", prix:680, etoiles:5, emoji:"💎", equip:"Centre-ville · Spa · Piscine rooftop" },
+        ],
+        transports: [
+            { id:8, icon:"✈️", trajet:"Paris (CDG) → Dubaï (DXB)", compagnie:"Emirates", duree:"6h10 direct", prix:650, places:25 },
+            { id:9, icon:"✈️", trajet:"Paris (CDG) → Dubaï (DXB)", compagnie:"Air France", duree:"6h30 direct", prix:720, places:18 },
+            { id:10, icon:"✈️", trajet:"Paris (ORY) → Dubaï (DXB)", compagnie:"Flydubai", duree:"6h45 direct", prix:490, places:30 },
+        ],
+        activites: [
+            { id:13, nom:"Dîner au sommet du Burj Khalifa", icon:"🍽️", duree:"2h", prix:180, capacite:"6 places restantes" },
+            { id:14, nom:"Safari désert & dîner bédouin", icon:"🐪", duree:"6h", prix:120, capacite:"20 places restantes" },
+            { id:15, nom:"Croisière Dubai Marina", icon:"⛵", duree:"2h", prix:85, capacite:"15 places restantes" },
+            { id:16, nom:"Visite du Vieux Dubaï & Gold Souk", icon:"🏺", duree:"3h", prix:50, capacite:"Disponible" },
+        ],
+        avis: [
+            { id:8, auteur:"Karim B.", note:5, date:"Avril 2026", texte:"Dubaï m'a époustouflé ! Le Burj Al Arab est une expérience unique. Le service est absolument irréprochable." },
+            { id:9, auteur:"Nadia S.", note:4, date:"Mars 2026", texte:"Ville fascinante entre modernité et tradition. Le safari dans le désert est un must !" },
+        ]
+    },
+    5: { // Seychelles
+        imageFile: "seychelles.jpg",
+        emoji: "🌊",
+        hotels: [
+            { id:14, nom:"North Island Lodge", image:"images/hotels/north-island.jpg", type:"Villa privée sur l'île", prix:2200, etoiles:5, emoji:"🏝️", equip:"Plage privée · Plongée · Butler · Spa" },
+            { id:15, nom:"Four Seasons Desroches", image:"images/hotels/four-seasons-desroches.jpg", type:"Suite Beach", prix:1100, etoiles:5, emoji:"🌴", equip:"Île privée · Piscine · Restaurant" },
+            { id:16, nom:"Fregate Island Private", type:"Villa Robinson", prix:1800, etoiles:5, emoji:"🦜", equip:"Île entière privatisée · Plages · Spa" },
+        ],
+        transports: [
+            { id:11, icon:"✈️", trajet:"Paris (CDG) → Mahé (SEZ)", compagnie:"Air France", duree:"10h via Dubaï", prix:1350, places:10 },
+            { id:12, icon:"✈️", trajet:"Paris (CDG) → Mahé (SEZ)", compagnie:"Emirates", duree:"11h via Dubaï", prix:1180, places:15 },
+        ],
+        activites: [
+            { id:17, nom:"Plongée tortues marines", icon:"🐢", duree:"3h", prix:95, capacite:"8 places restantes" },
+            { id:18, nom:"Kayak anse Source d'Argent", icon:"🚣", duree:"2h", prix:65, capacite:"10 places restantes" },
+            { id:19, nom:"Snorkeling récif corallien", icon:"🤿", duree:"2h", prix:55, capacite:"12 places restantes" },
+        ],
+        avis: [
+            { id:10, auteur:"Isabelle P.", note:5, date:"Février 2026", texte:"Paradis absolu ! Les Seychelles dépassent toutes les attentes. North Island est juste incroyable." },
+        ]
+    },
+    6: { // Tokyo
+        imageFile: "tokyo.jpg",
+        emoji: "🗼",
+        hotels: [
+            { id:17, nom:"Aman Tokyo", image:"images/hotels/aman-tokyo.jpg", type:"Suite Panoramique", prix:1100, etoiles:5, emoji:"🏯", equip:"Vue mont Fuji · Onsen · Restaurant kaiseki" },
+            { id:18, nom:"Park Hyatt Tokyo", image:"images/hotels/park-hyatt-tokyo.jpg", type:"Suite Deluxe", prix:780, etoiles:5, emoji:"🌸", equip:"Piscine 47ème étage · Bar New York · Spa" },
+            { id:19, nom:"The Ritz-Carlton Roppongi", type:"Suite Signature", prix:850, etoiles:5, emoji:"💎", equip:"Rooftop · Spa · Restaurant michelin" },
+        ],
+        transports: [
+            { id:13, icon:"✈️", trajet:"Paris (CDG) → Tokyo (NRT)", compagnie:"Air France", duree:"12h direct", prix:980, places:15 },
+            { id:14, icon:"✈️", trajet:"Paris (CDG) → Tokyo (HND)", compagnie:"ANA", duree:"12h30 direct", prix:920, places:20 },
+        ],
+        activites: [
+            { id:20, nom:"Cérémonie du thé traditionnelle", icon:"🍵", duree:"2h", prix:65, capacite:"8 places restantes" },
+            { id:21, nom:"Visite temple Senso-ji", icon:"⛩️", duree:"3h", prix:40, capacite:"Disponible" },
+            { id:22, nom:"Cours de sushi avec chef étoilé", icon:"🍣", duree:"3h", prix:150, capacite:"6 places restantes" },
+            { id:23, nom:"Nuit en Ryokan traditionnel", icon:"🏮", duree:"1 nuit", prix:300, capacite:"4 places restantes" },
+        ],
+        avis: [
+            { id:11, auteur:"Léa D.", note:5, date:"Mars 2026", texte:"Tokyo est une ville absolument fascinante. Le mélange tradition-modernité est unique au monde. L'Aman est somptueux." },
+        ]
+    },
+    7: { // Marrakech
+        imageFile: "marrakech.jpg",
+        emoji: "🕌",
+        hotels: [
+            { id:20, nom:"La Mamounia", image:"images/hotels/mamounia.jpg", type:"Suite Jardins", prix:680, etoiles:5, emoji:"🌹", equip:"Jardins légendaires · Spa · 5 restaurants" },
+            { id:21, nom:"Royal Mansour", image:"images/hotels/royal-mansour.jpg", type:"Riad privé", prix:1500, etoiles:5, emoji:"🏰", equip:"Riad entier · Spa · Piscine privée · Butler" },
+            { id:22, nom:"Amanjena", type:"Pavillon privé", prix:950, etoiles:5, emoji:"🌴", equip:"Piscine privée · Palmeraie · Spa" },
+        ],
+        transports: [
+            { id:15, icon:"✈️", trajet:"Paris (CDG) → Marrakech (RAK)", compagnie:"Royal Air Maroc", duree:"3h20 direct", prix:280, places:30 },
+            { id:16, icon:"✈️", trajet:"Paris (ORY) → Marrakech (RAK)", compagnie:"Air Arabia", duree:"3h30 direct", prix:220, places:40 },
+        ],
+        activites: [
+            { id:24, nom:"Visite guidée Médina & Souks", icon:"🧭", duree:"4h", prix:45, capacite:"12 places restantes" },
+            { id:25, nom:"Excursion désert Agafay", icon:"🐪", duree:"6h", prix:80, capacite:"10 places restantes" },
+            { id:26, nom:"Hammam traditionnel & Argan", icon:"💆", duree:"2h", prix:55, capacite:"Disponible" },
+            { id:27, nom:"Cours de cuisine marocaine", icon:"🍲", duree:"3h", prix:60, capacite:"8 places restantes" },
+        ],
+        avis: [
+            { id:12, auteur:"Fatima Z.", note:5, date:"Avril 2026", texte:"La Mamounia est une institution ! Les jardins sont magnifiques et le spa est un vrai havre de paix." },
+            { id:13, auteur:"Julien M.", note:4, date:"Mars 2026", texte:"Marrakech est envoûtante. La Médina est un labyrinthe fascinant. Attention à la chaleur en été !" },
+        ]
+    },
+    8: { // New York
+        imageFile: "new-york.jpg",
+        emoji: "🗽",
+        hotels: [
+            { id:23, nom:"The Mark Hotel", image:"images/hotels/the-mark.jpg", type:"Suite Penthouse", prix:1200, etoiles:5, emoji:"🏙️", equip:"Upper East Side · Spa · Restaurant Jean-Georges" },
+            { id:24, nom:"Eleven Madison Park Residences", type:"Suite Manhattan", prix:980, etoiles:5, emoji:"🌆", equip:"Vue Central Park · Service conciergerie · Bar" },
+            { id:25, nom:"The Plaza", image:"images/hotels/the-plaza.jpg", type:"Suite Central Park", prix:850, etoiles:5, emoji:"👑", equip:"Vue Central Park · Spa · Afternoon Tea" },
+        ],
+        transports: [
+            { id:17, icon:"✈️", trajet:"Paris (CDG) → New York (JFK)", compagnie:"Air France", duree:"8h direct", prix:750, places:20 },
+            { id:18, icon:"✈️", trajet:"Paris (CDG) → New York (JFK)", compagnie:"Delta", duree:"8h15 direct", prix:680, places:25 },
+        ],
+        activites: [
+            { id:28, nom:"Helicopter tour Manhattan", icon:"🚁", duree:"1h", prix:250, capacite:"6 places restantes" },
+            { id:29, nom:"Visite Musées & Galeries", icon:"🎨", duree:"4h", prix:60, capacite:"Disponible" },
+            { id:30, nom:"Dîner Broadway & Spectacle", icon:"🎭", duree:"4h", prix:180, capacite:"8 places restantes" },
+            { id:31, nom:"Tour gastronomique Brooklyn", icon:"🍕", duree:"3h", prix:90, capacite:"10 places restantes" },
+        ],
+        avis: [
+            { id:14, auteur:"Emma G.", note:5, date:"Avril 2026", texte:"New York ne déçoit jamais ! The Mark est une adresse parfaite. L'helicopter tour est une expérience inoubliable." },
+        ]
+    },
+    9: { // Paris
+        imageFile: "paris.jpg",
+        emoji: "🗼",
+        hotels: [
+            { id:26, nom:"Le Meurice", image:"images/hotels/meurice.jpg", type:"Suite Royale", prix:1800, etoiles:5, emoji:"👑", equip:"Vue Tuileries · Restaurant Alain Ducasse · Spa" },
+            { id:27, nom:"Hôtel de Crillon", image:"images/hotels/crillon.jpg", type:"Suite Boiserie", prix:1500, etoiles:5, emoji:"🌸", equip:"Place de la Concorde · Spa Chanel · Bar" },
+            { id:28, nom:"Four Seasons George V", type:"Suite Premier", prix:1200, etoiles:5, emoji:"💎", equip:"3 étoiles Michelin · Spa · Vue Eiffel" },
+        ],
+        transports: [
+            { id:19, icon:"🚄", trajet:"Paris Gare de Lyon → Paris Centre", compagnie:"SNCF Navette", duree:"Transfert aéroport", prix:25, places:99 },
+        ],
+        activites: [
+            { id:32, nom:"Visite privée Musée du Louvre", icon:"🏛️", duree:"3h", prix:120, capacite:"8 places restantes" },
+            { id:33, nom:"Dîner Tour Eiffel (Jules Verne)", icon:"🍽️", duree:"2h30", prix:280, capacite:"4 places restantes" },
+            { id:34, nom:"Croisière privée Seine au coucher", icon:"🛥️", duree:"2h", prix:150, capacite:"12 places restantes" },
+            { id:35, nom:"Atelier Parfum haute couture", icon:"🌹", duree:"2h", prix:200, capacite:"6 places restantes" },
+        ],
+        avis: [
+            { id:15, auteur:"Isabella C.", note:5, date:"Mai 2026", texte:"Paris reste toujours aussi magique. Le Meurice est un palace d'exception. Indétrônable !" },
+        ]
+    },
+    10: { // Phuket
+        imageFile: "phuket.jpg",
+        emoji: "🏖️",
+        hotels: [
+            { id:29, nom:"Amanpuri Resort", image:"images/hotels/amanpuri.jpg", type:"Pavillon privé", prix:1100, etoiles:5, emoji:"🌴", equip:"Plage privée · Piscine · Spa · Restaurant" },
+            { id:30, nom:"Trisara Resort", image:"images/hotels/trisara.jpg", type:"Villa sur l'eau", prix:850, etoiles:5, emoji:"🌅", equip:"Piscine privée · Butler · Vue mer" },
+            { id:31, nom:"Paresa Resort", type:"Suite Infinity", prix:650, etoiles:5, emoji:"🏖️", equip:"Falaise · Piscine infinie · Spa" },
+        ],
+        transports: [
+            { id:20, icon:"✈️", trajet:"Paris (CDG) → Phuket (HKT)", compagnie:"Thai Airways", duree:"12h via Bangkok", prix:780, places:18 },
+            { id:21, icon:"✈️", trajet:"Paris (CDG) → Phuket (HKT)", compagnie:"Emirates", duree:"13h via Dubaï", prix:720, places:22 },
+        ],
+        activites: [
+            { id:36, nom:"Croisière îles Phi Phi", icon:"🚢", duree:"Journée", prix:110, capacite:"15 places restantes" },
+            { id:37, nom:"Plongée sous-marine Similan", icon:"🤿", duree:"Journée", prix:140, capacite:"8 places restantes" },
+            { id:38, nom:"Elephant Sanctuary", icon:"🐘", duree:"4h", prix:80, capacite:"10 places restantes" },
+        ],
+        avis: [
+            { id:16, auteur:"Martin V.", note:5, date:"Février 2026", texte:"Phuket est sublime ! L'Amanpuri est un paradis sur terre. Les îles Phi Phi sont à couper le souffle." },
+        ]
+    },
+    11: { // Safari Kenya
+        imageFile: "kenya.jpg",
+        emoji: "🦁",
+        hotels: [
+            { id:32, nom:"Angama Mara", image:"images/hotels/angama-mara.jpg", type:"Tente de luxe", prix:1800, etoiles:5, emoji:"🌄", equip:"Vue Great Rift Valley · Safari inclus · Piscine" },
+            { id:33, nom:"Mahali Mzuri", image:"images/hotels/mahali-mzuri.jpg", type:"Tente Richard Branson", prix:2200, etoiles:5, emoji:"🦁", equip:"Grande migration · Safari · Spa · Butler" },
+            { id:34, nom:"Singita Mara River", type:"Tented Camp", prix:1600, etoiles:5, emoji:"🐆", equip:"Rivière Mara · Guide expert · Cuisine gastronomique" },
+        ],
+        transports: [
+            { id:22, icon:"✈️", trajet:"Paris (CDG) → Nairobi (NBO)", compagnie:"Kenya Airways", duree:"9h direct", prix:920, places:12 },
+            { id:23, icon:"✈️", trajet:"Paris (CDG) → Nairobi (NBO)", compagnie:"Ethiopian Airlines", duree:"10h30 via Addis", prix:780, places:18 },
+        ],
+        activites: [
+            { id:39, nom:"Safari Grande Migration Masaï Mara", icon:"🦓", duree:"Journée", prix:350, capacite:"6 places restantes" },
+            { id:40, nom:"Visite village Masaï authentique", icon:"🏕️", duree:"3h", prix:80, capacite:"10 places restantes" },
+            { id:41, nom:"Balloon Safari au lever du soleil", icon:"🎈", duree:"3h", prix:450, capacite:"4 places restantes" },
+        ],
+        avis: [
+            { id:17, auteur:"Paul A.", note:5, date:"Janvier 2026", texte:"Expérience de vie ! Voir la grande migration depuis l'Angama Mara est quelque chose d'unique. Guide exceptionnel." },
+        ]
+    },
+    12: { // Côte Amalfitaine
+        imageFile: "amalfi.jpg",
+        emoji: "🍋",
+        hotels: [
+            { id:35, nom:"Hotel Santa Caterina", image:"images/hotels/santa-caterina.jpg", type:"Suite Vue Mer", prix:720, etoiles:5, emoji:"🌊", equip:"Falaise · Ascenseur mer · Restaurant étoilé" },
+            { id:36, nom:"Palazzo Avino", image:"images/hotels/palazzo-avino.jpg", type:"Suite Prestige", prix:850, etoiles:5, emoji:"🍋", equip:"Ravello · Piscine infinie · Spa · Michelin" },
+            { id:37, nom:"Villa Cimbrone Suites", type:"Suite jardin", prix:650, etoiles:5, emoji:"🌹", equip:"Jardins historiques · Vue mer · Butler" },
+        ],
+        transports: [
+            { id:24, icon:"✈️", trajet:"Paris (CDG) → Naples (NAP)", compagnie:"Air France", duree:"2h30 direct", prix:320, places:25 },
+            { id:25, icon:"✈️", trajet:"Paris (ORY) → Naples (NAP)", compagnie:"Vueling", duree:"2h45 direct", prix:240, places:30 },
+        ],
+        activites: [
+            { id:42, nom:"Croisière côte Amalfitaine", icon:"⛵", duree:"Journée", prix:150, capacite:"12 places restantes" },
+            { id:43, nom:"Visite Pompéi & Herculanum", icon:"🏛️", duree:"Journée", prix:90, capacite:"15 places restantes" },
+            { id:44, nom:"Dégustation limoncello & cuisine locale", icon:"🍋", duree:"2h", prix:65, capacite:"10 places restantes" },
+        ],
+        avis: [
+            { id:18, auteur:"Cécile F.", note:5, date:"Avril 2026", texte:"La Côte Amalfitaine est un tableau vivant ! L'Hotel Santa Caterina est magnifique. On reviendra !" },
+        ]
+    }
+};
+
+// Fallback pour destinations non listées
+const fallbackData = {
+    emoji: "✈️",
+    hotels: [
+        { id:99, nom:"Grand Hotel de Luxe", type:"Suite Prestige", prix:600, etoiles:5, emoji:"🏨", equip:"Piscine · Spa · Restaurant gastronomique" }
+    ],
+    transports: [
+        { id:99, icon:"✈️", trajet:"Paris (CDG) → Destination", compagnie:"Air France", duree:"Vol direct", prix:500, places:20 }
+    ],
+    activites: [
+        { id:99, nom:"Excursion découverte", icon:"🗺️", duree:"Journée", prix:80, capacite:"Disponible" }
+    ],
+    avis: []
+};
+
+// ── NAVBAR ────────────────────────────────────────────────
+function Navbar() {
+    const [user, setUser] = useState(() => {
+    try {
+        return JSON.parse(localStorage.getItem('vv_user')) || null;
+    } catch(e) {
+        return null;
+    }
+});
+    return (
+        <nav className="navbar">
+            <div className="navbar-logo" onClick={() => window.location.href='index.html'}>
+                ✦ VoyageVista
+            </div>
+            <div className="navbar-links">
+                <a href="index.html">Accueil</a>
+                <a href="catalogue.html">Destinations</a>
+                <a href="catalogue.html?filtre=hebergement">Hôtels</a>
+                <a href="catalogue.html?filtre=activite">Activités</a>
+            </div>
+            <div>
+                {user ? (
+                    <span style={{color:'white', fontSize:'13px'}}>
+                        {user.prenom} &nbsp;
+                        <button className="navbar-btn"
+                            onClick={() => window.location.href='espace-voyageur.html'}>
+                            Mon espace
+                        </button>
+                    </span>
+                ) : (
+                    <button className="navbar-btn"
+                        onClick={() => window.location.href='index.html'}>
+                        Connexion
+                    </button>
+                )}
+            </div>
+        </nav>
+    );
+}
+
+// ── APP PRINCIPAL ─────────────────────────────────────────
+function App() {
+    const [onglet, setOnglet] = useState('hebergements');
+    const [dateArrivee, setDateArrivee] = useState('');
+    const [dateDepart, setDateDepart] = useState('');
+    const [nbVoyageurs, setNbVoyageurs] = useState(2);
+    const [hotelSelectionne, setHotelSelectionne] = useState(null);
+    const [transportSelectionne, setTransportSelectionne] = useState(null);
+    const [activitesSelectionnees, setActivitesSelectionnees] = useState([]);
+    const [destination, setDestination] = useState(null);
+    const [donnees, setDonnees] = useState(null);
+    const [chargement, setChargement] = useState(true);
+    const [erreur, setErreur] = useState('');
+
+    // ── LECTURE DE L'ID DANS L'URL ──
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const id = parseInt(params.get('id'));
+
+        if (!id) {
+            setErreur('Aucune destination sélectionnée.');
+            setChargement(false);
+            return;
+        }
+
+        // Charger la destination depuis l'API
+        fetch(`${API_URL}/destinations?id=${id}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    setDestination(data.data);
+                    // Charger les données locales (hébergements, transports, activités, avis)
+                    const local = donneesLocales[id] || fallbackData;
+                    setDonnees(local);
+                } else {
+                    // Fallback sur les données locales si l'API ne répond pas
+                    const destsFallback = {
+                        1:{id:1,nom:"Maldives",pays:"Océan Indien",note_moyenne:4.9,description:"Archipel de 1200 îles coralliennes, paradis absolu pour les amateurs de luxe et de plages immaculées."},
+                        2:{id:2,nom:"Bali",pays:"Indonésie",note_moyenne:4.8,description:"Île des dieux, Bali offre un mélange unique de spiritualité, de nature luxuriante et de plages paradisiaques."},
+                        3:{id:3,nom:"Santorini",pays:"Grèce",note_moyenne:4.9,description:"Joyau des Cyclades avec ses maisons blanches, ses dômes bleus et ses couchers de soleil légendaires."},
+                        4:{id:4,nom:"Dubaï",pays:"Émirats Arabes Unis",note_moyenne:4.7,description:"Métropole futuriste du désert, Dubaï allie luxe extrême, architecture spectaculaire et expériences uniques."},
+                        5:{id:5,nom:"Seychelles",pays:"Afrique",note_moyenne:4.9,description:"Archipel de 115 îles granit aux plages de sable rose, eaux turquoise et faune marine exceptionnelle."},
+                        6:{id:6,nom:"Tokyo",pays:"Japon",note_moyenne:4.8,description:"Capitale entre tradition et ultramodernité, Tokyo offre une immersion unique dans la culture japonaise."},
+                        7:{id:7,nom:"Marrakech",pays:"Maroc",note_moyenne:4.6,description:"Ville impériale envoûtante, Marrakech mêle médinas labyrinthiques, palais somptueux et jardins secrets."},
+                        8:{id:8,nom:"New York",pays:"États-Unis",note_moyenne:4.7,description:"La ville qui ne dort jamais, New York fascine par son énergie, sa skyline iconique et sa diversité culturelle."},
+                        9:{id:9,nom:"Paris",pays:"France",note_moyenne:4.8,description:"Capitale mondiale de l'art, de la mode et de la gastronomie, Paris reste la destination romantique par excellence."},
+                        10:{id:10,nom:"Phuket",pays:"Thaïlande",note_moyenne:4.7,description:"Perle de la mer d'Andaman, Phuket séduit par ses plages de sable blanc et ses eaux cristallines."},
+                        11:{id:11,nom:"Safari Kenya",pays:"Kenya",note_moyenne:5.0,description:"Vivez l'expérience ultime au cœur de la Grande Migration dans le Masaï Mara, un spectacle naturel unique."},
+                        12:{id:12,nom:"Côte Amalfitaine",pays:"Italie",note_moyenne:4.8,description:"Chef-d'œuvre méditerranéen, la côte Amalfitaine déroule ses villages colorés entre mer azur et falaises vertigineuses."}
+                    };
+                    const dest = destsFallback[id];
+                    if (dest) {
+                        setDestination(dest);
+                        setDonnees(donneesLocales[id] || fallbackData);
+                    } else {
+                        setErreur('Destination introuvable.');
+                    }
+                }
+                setChargement(false);
+            })
+            .catch(() => {
+                // API non disponible — mode local complet
+                const destsFallback = {
+                    1:{id:1,nom:"Maldives",pays:"Océan Indien",note_moyenne:4.9,description:"Archipel de 1200 îles coralliennes, paradis absolu pour les amateurs de luxe."},
+                    2:{id:2,nom:"Bali",pays:"Indonésie",note_moyenne:4.8,description:"Île des dieux, mélange unique de spiritualité et nature luxuriante."},
+                    3:{id:3,nom:"Santorini",pays:"Grèce",note_moyenne:4.9,description:"Joyau des Cyclades avec couchers de soleil légendaires."},
+                    4:{id:4,nom:"Dubaï",pays:"Émirats Arabes Unis",note_moyenne:4.7,description:"Métropole futuriste alliant luxe extrême et architecture spectaculaire."},
+                    5:{id:5,nom:"Seychelles",pays:"Afrique",note_moyenne:4.9,description:"Archipel de 115 îles aux plages de sable rose et eaux turquoise."},
+                    6:{id:6,nom:"Tokyo",pays:"Japon",note_moyenne:4.8,description:"Capitale entre tradition et ultramodernité, expérience culturelle unique."},
+                    7:{id:7,nom:"Marrakech",pays:"Maroc",note_moyenne:4.6,description:"Ville impériale envoûtante aux médinas labyrinthiques et palais somptueux."},
+                    8:{id:8,nom:"New York",pays:"États-Unis",note_moyenne:4.7,description:"La ville qui ne dort jamais, fascinante par son énergie et sa diversité."},
+                    9:{id:9,nom:"Paris",pays:"France",note_moyenne:4.8,description:"Capitale mondiale de l'art, mode et gastronomie."},
+                    10:{id:10,nom:"Phuket",pays:"Thaïlande",note_moyenne:4.7,description:"Perle de la mer d'Andaman aux plages de sable blanc."},
+                    11:{id:11,nom:"Safari Kenya",pays:"Kenya",note_moyenne:5.0,description:"Grande Migration dans le Masaï Mara, spectacle naturel unique."},
+                    12:{id:12,nom:"Côte Amalfitaine",pays:"Italie",note_moyenne:4.8,description:"Villages colorés entre mer azur et falaises vertigineuses."}
+                };
+                const id2 = parseInt(new URLSearchParams(window.location.search).get('id'));
+                const dest = destsFallback[id2];
+                if (dest) {
+                    setDestination(dest);
+                    setDonnees(donneesLocales[id2] || fallbackData);
+                } else {
+                    setErreur('Destination introuvable.');
+                }
+                setChargement(false);
+            });
+    }, []);
+
+    function calculerTotal() {
+        let total = 0;
+        if (transportSelectionne) total += transportSelectionne.prix * nbVoyageurs;
+        if (hotelSelectionne && dateArrivee && dateDepart) {
+            const d1 = new Date(dateArrivee);
+            const d2 = new Date(dateDepart);
+            const nuits = Math.max(1, Math.round((d2 - d1) / (1000 * 60 * 60 * 24)));
+            total += hotelSelectionne.prix * nuits;
+        }
+        activitesSelectionnees.forEach(a => total += a.prix * nbVoyageurs);
+        return total;
+    }
+
+    function toggleActivite(activite) {
+        setActivitesSelectionnees(prev =>
+            prev.find(a => a.id === activite.id)
+                ? prev.filter(a => a.id !== activite.id)
+                : [...prev, activite]
+        );
+    }
+
+    function ajouterAuPanier() {
+        if (!hotelSelectionne && !transportSelectionne) {
+            alert('Sélectionnez au moins un hôtel ou un transport !');
+            return;
+        }
+        if (dateArrivee && dateDepart && new Date(dateDepart) <= new Date(dateArrivee)) {
+            alert('La date de départ doit être après la date d\'arrivée !');
+            return;
+        }
+        const panier = {
+            destination: destination.nom,
+            hotel: hotelSelectionne,
+            transport: transportSelectionne,
+            activites: activitesSelectionnees,
+            dateArrivee, dateDepart, nbVoyageurs,
+            total: calculerTotal()
+        };
+        localStorage.setItem('vv_panier', JSON.stringify(panier));
+        alert('Ajouté au panier ! Redirection...');
+        window.location.href = 'panier.html';
+    }
+
+    const etoilesStr = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);
+
+    if (chargement) return (
+        <div><Navbar />
+            <div className="loading-box">⏳ Chargement de la destination...</div>
+        </div>
+    );
+
+    if (erreur) return (
+        <div><Navbar />
+            <div className="loading-box">
+                ❌ {erreur}<br /><br />
+                <button className="btn-reserver" onClick={() => window.location.href='catalogue.html'}>
+                    ← Retour au catalogue
+                </button>
+            </div>
+        </div>
+    );
+
+    const { hotels, transports, activites, avis, emoji } = donnees;
+    const nbAvis = avis.length > 0 ? avis.length * 47 + 12 : 0; // Nombre d'avis simulé
+
+    return (
+        <div>
+            <Navbar />
+
+            {/* HERO */}
+            <div className="dest-hero" style={{
+                backgroundImage: `url(images/destinations/${donnees?.imageFile || 'maldives.jpg'})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+            }}>
+                <div className="dest-hero-overlay">
+                    <div className="breadcrumb">
+                        <a href="index.html">Accueil</a> &gt; &nbsp;
+                        <a href="catalogue.html">Destinations</a> &gt; &nbsp;
+                        {destination.nom}
+                    </div>
+                    <div className="dest-hero-nom">{destination.nom}</div>
+                    <div className="dest-hero-pays">📍 {destination.pays}</div>
+                    <div className="badges-row">
+                        <span className="badge badge-light">{destination.categorie || 'Luxe'}</span>
+                        <span className="badge badge-light">⭐ {destination.note_moyenne} ({nbAvis} avis)</span>
+                        <span className="badge badge-light">✦ Prestige</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* LAYOUT PRINCIPAL */}
+            <div className="layout">
+                {/* GAUCHE */}
+                <div className="content-left">
+                    <p style={{fontSize:'14px', color:'#6B7280', lineHeight:'1.7', marginBottom:'25px'}}>
+                        {destination.description || 'Une destination d\'exception pour un voyage de luxe inoubliable.'}
+                    </p>
+
+                    {/* ONGLETS */}
+                    <div className="onglets">
+                        {[
+                            {id:'hebergements', label:'🏨 Hébergements'},
+                            {id:'transports', label:'✈️ Transports'},
+                            {id:'activites', label:'🎯 Activités'},
+                            {id:'avis', label:`💬 Avis (${avis.length})`},
+                        ].map(o => (
+                            <div key={o.id}
+                                className={`onglet ${onglet === o.id ? 'active' : ''}`}
+                                onClick={() => setOnglet(o.id)}>
+                                {o.label}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* HEBERGEMENTS */}
+                    {onglet === 'hebergements' && (
+                        <div>
+                            {hotels.map(hotel => (
+                                <div key={hotel.id} className="hotel-card"
+                                    style={hotelSelectionne?.id === hotel.id ? {border:'2px solid #1B2A4A'} : {}}>
+                                    <div className="hotel-img" style={{
+                                        backgroundImage:`url(${hotel.image || 'images/destinations/' + (donnees?.imageFile || 'maldives.jpg')})`,
+                                        backgroundSize:'cover',
+                                        backgroundPosition:'center',
+                                        width:'120px',
+                                        height:'120px',
+                                        flexShrink:0
+                                    }}></div>
+                                    <div className="hotel-body">
+                                        <div className="hotel-info">
+                                            <div className="hotel-nom">{hotel.nom}</div>
+                                            <div className="hotel-type">{hotel.type}</div>
+                                            <div className="hotel-etoiles">{etoilesStr(hotel.etoiles)}</div>
+                                            <div className="hotel-equip">{hotel.equip}</div>
+                                        </div>
+                                        <div className="hotel-prix-bloc">
+                                            <div className="hotel-prix">{hotel.prix} €</div>
+                                            <div className="hotel-prix-label">/ nuit</div>
+                                            <button className="btn-reserver"
+                                                style={hotelSelectionne?.id === hotel.id ? {background:'#1A6B4A'} : {}}
+                                                onClick={() => setHotelSelectionne(
+                                                    hotelSelectionne?.id === hotel.id ? null : hotel
+                                                )}>
+                                                {hotelSelectionne?.id === hotel.id ? '✓ Sélectionné' : 'Sélectionner'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* TRANSPORTS */}
+                    {onglet === 'transports' && (
+                        <div>
+                            {transports.map(t => (
+                                <div key={t.id} className="transport-card"
+                                    style={transportSelectionne?.id === t.id ? {border:'2px solid #1B2A4A'} : {}}>
+                                    <div className="transport-icon">{t.icon}</div>
+                                    <div className="transport-info">
+                                        <div className="transport-trajet">{t.trajet}</div>
+                                        <div className="transport-details">{t.compagnie} · {t.duree}</div>
+                                        <div className="transport-dispo"
+                                            style={{color: t.places <= 5 ? '#C75B00' : '#1A6B4A'}}>
+                                            {t.places} places disponibles
+                                        </div>
+                                    </div>
+                                    <div className="transport-prix-bloc">
+                                        <div className="transport-prix">{t.prix} €</div>
+                                        <div className="transport-prix-label">/ personne</div>
+                                        <button className="btn-selectionner"
+                                            style={transportSelectionne?.id === t.id ? {background:'#1B2A4A', color:'white'} : {}}
+                                            onClick={() => setTransportSelectionne(
+                                                transportSelectionne?.id === t.id ? null : t
+                                            )}>
+                                            {transportSelectionne?.id === t.id ? '✓ Sélectionné' : 'Sélectionner'}
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* ACTIVITES */}
+                    {onglet === 'activites' && (
+                        <div>
+                            {activites.map(act => {
+                                const estAjoute = activitesSelectionnees.find(a => a.id === act.id);
+                                return (
+                                    <div key={act.id} className="activite-card"
+                                        style={estAjoute ? {border:'2px solid #1A6B4A'} : {}}>
+                                        <div className="activite-icon">{act.icon}</div>
+                                        <div className="activite-info">
+                                            <div className="activite-nom">{act.nom}</div>
+                                            <div className="activite-details">⏱ {act.duree} · 👥 {act.capacite}</div>
+                                        </div>
+                                        <div className="activite-prix-bloc">
+                                            <div className="activite-prix">{act.prix} €</div>
+                                            <div className="activite-label">/ personne</div>
+                                            <button
+                                                className={`btn-ajouter ${estAjoute ? 'ajoute' : ''}`}
+                                                onClick={() => toggleActivite(act)}>
+                                                {estAjoute ? '✓ Ajouté' : '+ Ajouter'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    {/* AVIS */}
+                    {onglet === 'avis' && (
+                        <div>
+                            <div style={{
+                                background:'white', borderRadius:'8px',
+                                border:'1px solid #E2DDD6', padding:'20px',
+                                marginBottom:'20px', textAlign:'center'
+                            }}>
+                                <div style={{fontSize:'48px', fontWeight:'bold', color:'#1B2A4A'}}>
+                                    {destination.note_moyenne}
+                                </div>
+                                <div style={{color:'#BA7517', fontSize:'20px', margin:'5px 0'}}>
+                                    ★★★★★
+                                </div>
+                                <div style={{fontSize:'13px', color:'#6B7280'}}>
+                                    Basé sur {nbAvis} avis
+                                </div>
+                            </div>
+                            {avis.length === 0 && (
+                                <div style={{textAlign:'center', color:'#6B7280', padding:'30px'}}>
+                                    Aucun avis pour cette destination.
+                                </div>
+                            )}
+                            {avis.map(a => (
+                                <div key={a.id} className="avis-card">
+                                    <div className="avis-header">
+                                        <div className="avis-auteur">{a.auteur}</div>
+                                        <div className="avis-date">{a.date}</div>
+                                    </div>
+                                    <div className="avis-note">{'★'.repeat(a.note)}</div>
+                                    <div className="avis-texte">{a.texte}</div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* WIDGET RESERVATION DROITE */}
+                <div className="widget-resa">
+                    <div className="widget-card">
+                        <div className="widget-titre">✦ Composer mon séjour</div>
+
+                        <div className="widget-field">
+                            <label>Date d'arrivée</label>
+                            <input type="date" value={dateArrivee}
+                                min={new Date().toISOString().split('T')[0]}
+                                onChange={e => setDateArrivee(e.target.value)} />
+                        </div>
+                        <div className="widget-field">
+                            <label>Date de départ</label>
+                            <input type="date" value={dateDepart}
+                                min={dateArrivee || new Date().toISOString().split('T')[0]}
+                                onChange={e => setDateDepart(e.target.value)} />
+                        </div>
+                        <div className="widget-field">
+                            <label>Voyageurs</label>
+                            <input type="number" min="1" max="20" value={nbVoyageurs}
+                                onChange={e => setNbVoyageurs(Number(e.target.value))} />
+                        </div>
+
+                        <div className="widget-total">
+                            {transportSelectionne && (
+                                <div className="widget-total-row">
+                                    <span>✈️ {transportSelectionne.compagnie}</span>
+                                    <span>{(transportSelectionne.prix * nbVoyageurs).toLocaleString()} €</span>
+                                </div>
+                            )}
+                            {hotelSelectionne && (
+                                <div className="widget-total-row">
+                                    <span>🏨 {hotelSelectionne.nom}</span>
+                                    <span>{hotelSelectionne.prix} € / nuit</span>
+                                </div>
+                            )}
+                            {activitesSelectionnees.length > 0 && (
+                                <div className="widget-total-row">
+                                    <span>🎯 Activités ({activitesSelectionnees.length})</span>
+                                    <span>{activitesSelectionnees.reduce((s, a) => s + a.prix * nbVoyageurs, 0)} €</span>
+                                </div>
+                            )}
+                            <div className="widget-total-main">
+                                <span>Total estimé</span>
+                                <span>{calculerTotal().toLocaleString()} €</span>
+                            </div>
+                        </div>
+
+                        <button className="btn-panier" onClick={ajouterAuPanier}>
+                            🛒 Ajouter au panier
+                        </button>
+                        <button className="btn-sauvegarder"
+                            onClick={() => alert('Connexion requise pour sauvegarder !')}>
+                            ❤️ Sauvegarder
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <footer>
+                © 2026 VoyageVista — FARES · BENZIDOUN · ADDOU · ANDRIAMPARANY
+            </footer>
+        </div>
+    );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>
