@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 function getConnection() {
     $host = "localhost";
-    $dbname = "voyagevista";
+    $dbname = "voyagevista-db";
     $username = "root";
     $password = "root";
     $port = 8889;
