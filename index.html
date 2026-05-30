@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>VoyageVista</title>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #F8F6F1; color: #1A1A2E; }
+
+        .navbar {
+            background: #1B2A4A;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-logo {
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+        .navbar-links a {
+            color: #D6E4F0;
+            text-decoration: none;
+            margin-left: 25px;
+            font-size: 14px;
+        }
+        .navbar-links a:hover { color: white; }
+        .navbar-btn {
+            background: #1B2A4A;
+            color: white;
+            border: 1px solid white;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-left: 10px;
+            font-size: 13px;
+        }
+        .navbar-btn-primary {
+            background: white;
+            color: #1B2A4A;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-left: 10px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .hero {
+            background: #1B2A4A;
+            color: white;
+            text-align: center;
+            padding: 80px 40px 60px;
+        }
+        .hero h1 { font-size: 42px; margin-bottom: 10px; }
+        .hero p { font-size: 16px; color: #D6E4F0; margin-bottom: 40px; }
+        .search-bar {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            max-width: 900px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+        .search-field { display: flex; flex-direction: column; flex: 1; min-width: 150px; }
+        .search-field label { font-size: 11px; color: #6B7280; margin-bottom: 5px; text-transform: uppercase; }
+        .search-field input {
+            border: 1px solid #E2DDD6;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #1A1A2E;
+        }
+        .search-btn {
+            background: #1B2A4A;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .search-btn:hover { background: #2C3E6B; }
+        .categories {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 30px;
+            background: white;
+            border-bottom: 1px solid #E2DDD6;
+            flex-wrap: wrap;
+        }
+        .category-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            color: #6B7280;
+            font-size: 13px;
+        }
+        .category-item:hover { color: #1B2A4A; }
+        .category-icon {
+            width: 45px;
+            height: 45px;
+            background: #F8F6F1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            border: 1px solid #E2DDD6;
+        }
+        .section { padding: 50px 40px; }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .section-title { font-size: 24px; font-weight: bold; color: #1B2A4A; }
+        .voir-tout { color: #1B2A4A; font-size: 13px; cursor: pointer; text-decoration: underline; }
+        .destinations-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .dest-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #E2DDD6;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .dest-card:hover { transform: translateY(-4px); }
+        .dest-card-img {
+            width: 100%;
+            height: 160px;
+            background: #D6E4F0;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        .dest-card-body { padding: 15px; }
+        .dest-card-name { font-size: 15px; font-weight: bold; color: #1A1A2E; }
+        .dest-card-pays { font-size: 12px; color: #6B7280; margin: 3px 0; }
+        .dest-card-prix { font-size: 14px; font-weight: bold; color: #1B2A4A; margin-top: 8px; }
+        .dest-card-btn {
+            width: 100%;
+            background: #1B2A4A;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            padding: 40px;
+            background: #1B2A4A;
+            color: white;
+            text-align: center;
+        }
+        .stat-number { font-size: 32px; font-weight: bold; }
+        .stat-label { font-size: 13px; color: #D6E4F0; margin-top: 5px; }
+        footer {
+            background: #0D1117;
+            color: #D6E4F0;
+            text-align: center;
+            padding: 30px;
+            font-size: 13px;
+        }
+        .message-success {
+            background: #D5F0E4;
+            color: #1A6B4A;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+        .message-error {
+            background: #FFE5E5;
+            color: #8B1A1A;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal {
+            background: white;
+            border-radius: 8px;
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+        }
+        .modal h2 { font-size: 22px; color: #1B2A4A; margin-bottom: 5px; }
+        .modal p { font-size: 13px; color: #6B7280; margin-bottom: 20px; }
+        .modal-tabs { display: flex; gap: 10px; margin-bottom: 25px; }
+        .modal-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            background: #F8F6F1;
+            color: #6B7280;
+        }
+        .modal-tab.active { background: #1B2A4A; color: white; font-weight: bold; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 12px; color: #6B7280; margin-bottom: 5px; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #E2DDD6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .form-row { display: flex; gap: 10px; }
+        .form-row .form-group { flex: 1; }
+        .submit-btn {
+            width: 100%;
+            background: #1B2A4A;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        .submit-btn:hover { background: #2C3E6B; }
+        .close-btn {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #6B7280;
+        }
+        .role-buttons { display: flex; gap: 8px; margin-top: 5px; }
+        .role-btn {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #E2DDD6;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            background: white;
+            color: #6B7280;
+        }
+        .role-btn.selected { background: #1B2A4A; color: white; border-color: #1B2A4A; }
+    </style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState } = React;
+
+const API_URL = "http://localhost/voyagevistaaa/voyagevista/backend";
+
+const destinationsDemo = [
+    { id: 1, nom: "Maldives",  pays: "Océan Indien",       image: "images/destinations/maldives.jpg",   prix: 2490, note: 4.9 },
+    { id: 2, nom: "Bali",      pays: "Indonésie",           image: "images/destinations/bali.jpg",        prix: 1890, note: 4.8 },
+    { id: 3, nom: "Santorini", pays: "Grèce",               image: "images/destinations/santorini.jpg",   prix: 2100, note: 4.9 },
+    { id: 4, nom: "Dubaï",     pays: "Émirats Arabes Unis", image: "images/destinations/dubai.jpg",       prix: 1650, note: 4.7 },
+];
+
+function Navbar({ user, onConnexionClick, onDeconnexion }) {
+    return (
+        <nav className="navbar">
+            <div className="navbar-logo"
+                onClick={() => window.location.href='index.html'}>
+                ✦ VoyageVista
+            </div>
+            <div className="navbar-links">
+                <a href="catalogue.html">Destinations</a>
+                <a href="#">Hôtels</a>
+                <a href="#">Transports</a>
+                <a href="#">Activités</a>
+            </div>
+            <div>
+                {user ? (
+                    <span style={{color: 'white', fontSize: '13px'}}>
+                        Bonjour {user.prenom} &nbsp;
+                        <button className="navbar-btn"
+                            onClick={() => {
+                                if (user.role === 'admin') {
+                                    window.location.href = 'admin.html';
+                                } else {
+                                    window.location.href = 'espace-voyageur.html';
+                                }
+                            }}>
+                            Mon espace
+                        </button>
+                        <button className="navbar-btn" onClick={onDeconnexion}>
+                            Déconnexion
+                        </button>
+                    </span>
+                ) : (
+                    <>
+                        <button className="navbar-btn" onClick={onConnexionClick}>
+                            Connexion
+                        </button>
+                        <button className="navbar-btn-primary" onClick={onConnexionClick}>
+                            Inscription
+                        </button>
+                    </>
+                )}
+            </div>
+        </nav>
+    );
+}
+
+function ModalAuth({ onClose, onSuccess }) {
+    const [onglet, setOnglet] = useState('connexion');
+    const [role, setRole] = useState('voyageur');
+    const [message, setMessage] = useState('');
+    const [erreur, setErreur] = useState('');
+    const [emailConn, setEmailConn] = useState('');
+    const [mdpConn, setMdpConn] = useState('');
+    const [nom, setNom] = useState('');
+    const [prenom, setPrenom] = useState('');
+    const [emailInsc, setEmailInsc] = useState('');
+    const [mdpInsc, setMdpInsc] = useState('');
+
+    function handleConnexion(e) {
+        e.preventDefault();
+        setErreur('');
+        if (!emailConn || !mdpConn) {
+            setErreur('Veuillez remplir tous les champs.');
+            return;
+        }
+        fetch('http://localhost/web2026/voyagevista/backend/API/auth.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'connexion',
+                email: emailConn,
+                mot_de_passe: mdpConn
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+    if (data.success) {
+        localStorage.setItem('vv_user', JSON.stringify(data.user));
+        localStorage.setItem('vv_token', data.token);
+        onSuccess(data.user);
+        onClose();
+        // Redirection selon le role
+        if (data.user.role === 'admin') {
+            window.location.href = 'admin.html';
+        } else {
+            window.location.href = 'espace-voyageur.html';
+        }
+    } else {
+                setErreur(data.message);
+            }
+        })
+        .catch(() => setErreur('Erreur de connexion au serveur.'));
+    }
+
+    function handleInscription(e) {
+        e.preventDefault();
+        setErreur('');
+        if (!nom || !prenom || !emailInsc || !mdpInsc) {
+            setErreur('Veuillez remplir tous les champs.');
+            return;
+        }
+        fetch('http://localhost/web2026/voyagevista/backend/API/auth.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'inscription',
+                nom, prenom,
+                email: emailInsc,
+                mot_de_passe: mdpInsc,
+                role
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                setMessage('Compte créé ! Vous pouvez vous connecter.');
+                setOnglet('connexion');
+            } else {
+                setErreur(data.message);
+            }
+        })
+        .catch(() => setErreur('Erreur de connexion au serveur.'));
+    }
+
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal" onClick={e => e.stopPropagation()}>
+                <button className="close-btn" onClick={onClose}>✕</button>
+                <h2>VoyageVista</h2>
+                <p>Accédez à votre espace luxe</p>
+                <div className="modal-tabs">
+                    <button className={`modal-tab ${onglet === 'connexion' ? 'active' : ''}`}
+                        onClick={() => setOnglet('connexion')}>Connexion</button>
+                    <button className={`modal-tab ${onglet === 'inscription' ? 'active' : ''}`}
+                        onClick={() => setOnglet('inscription')}>Inscription</button>
+                </div>
+                {message && <div className="message-success">{message}</div>}
+                {erreur && <div className="message-error">{erreur}</div>}
+                {onglet === 'connexion' ? (
+                    <form onSubmit={handleConnexion}>
+                        <div className="form-group">
+                            <label>Email</label>
+                            <input type="email" placeholder="votre@email.com"
+                                value={emailConn} onChange={e => setEmailConn(e.target.value)} />
+                        </div>
+                        <div className="form-group">
+                            <label>Mot de passe</label>
+                            <input type="password" placeholder="••••••••"
+                                value={mdpConn} onChange={e => setMdpConn(e.target.value)} />
+                        </div>
+                        <button type="submit" className="submit-btn">Se connecter</button>
+                    </form>
+                ) : (
+                    <form onSubmit={handleInscription}>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>Prénom</label>
+                                <input type="text" placeholder="Prénom"
+                                    value={prenom} onChange={e => setPrenom(e.target.value)} />
+                            </div>
+                            <div className="form-group">
+                                <label>Nom</label>
+                                <input type="text" placeholder="Nom"
+                                    value={nom} onChange={e => setNom(e.target.value)} />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label>Email</label>
+                            <input type="email" placeholder="votre@email.com"
+                                value={emailInsc} onChange={e => setEmailInsc(e.target.value)} />
+                        </div>
+                        <div className="form-group">
+                            <label>Mot de passe</label>
+                            <input type="password" placeholder="••••••••"
+                                value={mdpInsc} onChange={e => setMdpInsc(e.target.value)} />
+                        </div>
+                        <div className="form-group">
+                            <label>Rôle</label>
+                            <div className="role-buttons">
+                                {['voyageur', 'prestataire', 'admin'].map(r => (
+                                    <button key={r} type="button"
+                                        className={`role-btn ${role === r ? 'selected' : ''}`}
+                                        onClick={() => setRole(r)}>
+                                        {r.charAt(0).toUpperCase() + r.slice(1)}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <button type="submit" className="submit-btn">Créer mon compte</button>
+                    </form>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function CarteDestination({ dest }) {
+    return (
+        <div className="dest-card">
+            <div className="dest-card-img" style={{backgroundImage:`url(${dest.image})`, backgroundSize:"cover", backgroundPosition:"center"}}></div>
+            <div className="dest-card-body">
+                <div className="dest-card-name">{dest.nom}</div>
+                <div className="dest-card-pays">{dest.pays}</div>
+                <div className="dest-card-prix">À partir de {dest.prix} €</div>
+                <button className="dest-card-btn"
+                    onClick={() => window.location.href='destination.html?id=' + dest.id}>
+                    Voir le séjour
+                </button>
+            </div>
+        </div>
+    );
+}
+
+function App() {
+    const [user, setUser] = useState(() => {
+    try {
+        return JSON.parse(localStorage.getItem('vv_user')) || null;
+    } catch(e) {
+        return null;
+    }
+});
+    const [showModal, setShowModal] = useState(false);
+    const [recherche, setRecherche] = useState('');
+
+    function handleDeconnexion() {
+        localStorage.removeItem('vv_user');
+        localStorage.removeItem('vv_token');
+        setUser(null);
+    }
+
+    function handleRecherche() {
+        if (recherche.trim()) {
+            window.location.href = 'catalogue.html?q=' + encodeURIComponent(recherche);
+        } else {
+            window.location.href = 'catalogue.html';
+        }
+    }
+
+    return (
+        <div>
+            <Navbar
+                user={user}
+                onConnexionClick={() => setShowModal(true)}
+                onDeconnexion={handleDeconnexion}
+            />
+            {showModal && (
+                <ModalAuth
+                    onClose={() => setShowModal(false)}
+                    onSuccess={(u) => setUser(u)}
+                />
+            )}
+            <div className="hero">
+                <h1>Voyages de Luxe Sur Mesure</h1>
+                <p>Villas privées · Jets privés · Expériences exclusives</p>
+                <div className="search-bar">
+                    <div className="search-field">
+                        <label>Destination</label>
+                        <input type="text" placeholder="Où voulez-vous aller ?"
+                            value={recherche}
+                            onChange={e => setRecherche(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handleRecherche()} />
+                    </div>
+                    <div className="search-field">
+                        <label>Date départ</label>
+                        <input type="date" />
+                    </div>
+                    <div className="search-field">
+                        <label>Date retour</label>
+                        <input type="date" />
+                    </div>
+                    <div className="search-field">
+                        <label>Voyageurs</label>
+                        <input type="number" min="1" defaultValue="2" />
+                    </div>
+                    <button className="search-btn" onClick={handleRecherche}>
+                        Rechercher
+                    </button>
+                </div>
+            </div>
+
+            <div className="categories">
+                {[
+                    {icon: '✈️', label: 'Vols', filtre: 'vol'},
+                    {icon: '🏨', label: 'Hôtels', filtre: 'hotel'},
+                    {icon: '🗺️', label: 'Séjours', filtre: 'sejour'},
+                    {icon: '🤿', label: 'Activités', filtre: 'activite'},
+                    {icon: '🚗', label: 'Voitures', filtre: 'voiture'},
+                    {icon: '🚢', label: 'Croisières', filtre: 'croisiere'},
+                ].map((cat, i) => (
+                    <div key={i} className="category-item"
+                        onClick={() => window.location.href='catalogue.html?type=' + cat.filtre}>
+                        <div className="category-icon">{cat.icon}</div>
+                        <span>{cat.label}</span>
+                    </div>
+                ))}
+            </div>
+
+            <div className="section">
+                <div className="section-header">
+                    <div className="section-title">Destinations populaires ✦</div>
+                    <span className="voir-tout"
+                        onClick={() => window.location.href='catalogue.html'}>
+                        Voir tout →
+                    </span>
+                </div>
+                <div className="destinations-grid">
+                    {destinationsDemo
+                        .filter(d => d.nom.toLowerCase().includes(recherche.toLowerCase()))
+                        .map(dest => (
+                            <CarteDestination key={dest.id} dest={dest} />
+                        ))
+                    }
+                </div>
+            </div>
+
+            <div className="stats">
+                <div>
+                    <div className="stat-number">1 200+</div>
+                    <div className="stat-label">Destinations</div>
+                </div>
+                <div>
+                    <div className="stat-number">98%</div>
+                    <div className="stat-label">Clients satisfaits</div>
+                </div>
+                <div>
+                    <div className="stat-number">12 000+</div>
+                    <div className="stat-label">Séjours réalisés</div>
+                </div>
+            </div>
+
+            <footer>
+                © 2026 VoyageVista — FARES · BENZIDOUN · ADDOU · ANDRIAMPARANY
+            </footer>
+        </div>
+    );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+
+</body>
+</html>
