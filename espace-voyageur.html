@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>VoyageVista - Mon Espace</title>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #F8F6F1; color: #1A1A2E; }
+
+        .navbar {
+            background: #1B2A4A;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-logo {
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .navbar-links a {
+            color: #D6E4F0;
+            text-decoration: none;
+            margin-left: 25px;
+            font-size: 14px;
+        }
+        .navbar-btn {
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-left: 10px;
+            font-size: 13px;
+        }
+
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+
+        .sidebar {
+            width: 240px;
+            background: white;
+            border-right: 1px solid #E2DDD6;
+            padding: 30px 0;
+            flex-shrink: 0;
+        }
+        .sidebar-profile {
+            padding: 0 20px 25px;
+            border-bottom: 1px solid #E2DDD6;
+            text-align: center;
+        }
+        .avatar {
+            width: 60px;
+            height: 60px;
+            background: #1B2A4A;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            margin: 0 auto 10px;
+        }
+        .profile-name { font-size: 15px; font-weight: bold; color: #1A1A2E; }
+        .profile-role { font-size: 12px; color: #6B7280; margin-top: 3px; }
+        .profile-badge {
+            display: inline-block;
+            background: #D6E4F0;
+            color: #1B2A4A;
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-top: 8px;
+            font-weight: bold;
+        }
+        .sidebar-menu { padding: 15px 0; }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #6B7280;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        .menu-item:hover { background: #F8F6F1; color: #1B2A4A; }
+        .menu-item.active {
+            background: #F8F6F1;
+            color: #1B2A4A;
+            font-weight: bold;
+            border-left: 3px solid #1B2A4A;
+        }
+        .menu-icon { font-size: 16px; }
+        .notif-badge {
+            background: #E24B4A;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: auto;
+        }
+
+        .main-content { flex: 1; padding: 30px; }
+        .page-title { font-size: 22px; font-weight: bold; color: #1B2A4A; margin-bottom: 25px; }
+
+        .resa-card {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #E2DDD6;
+            margin-bottom: 16px;
+            overflow: hidden;
+            display: flex;
+        }
+        .resa-accent { width: 5px; flex-shrink: 0; }
+        .resa-body {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .resa-img {
+            width: 80px;
+            height: 80px;
+            background: #D6E4F0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            flex-shrink: 0;
+        }
+        .resa-info { flex: 1; }
+        .resa-nom { font-size: 16px; font-weight: bold; color: #1A1A2E; margin-bottom: 4px; }
+        .resa-dates { font-size: 13px; color: #6B7280; margin-bottom: 6px; }
+        .resa-prix { font-size: 15px; font-weight: bold; color: #1B2A4A; }
+        .resa-actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .badge-success { background: #D5F0E4; color: #1A6B4A; }
+        .badge-warning { background: #FDE8D0; color: #C75B00; }
+        .badge-gray { background: #F1EFE8; color: #6B7280; }
+        .badge-danger { background: #FCEBEB; color: #A32D2D; }
+        .btn-details {
+            background: #1B2A4A; color: white; border: none;
+            padding: 7px 16px; border-radius: 4px; cursor: pointer; font-size: 12px;
+        }
+        .btn-annuler {
+            background: white; color: #E24B4A; border: 1px solid #E24B4A;
+            padding: 7px 16px; border-radius: 4px; cursor: pointer; font-size: 12px;
+        }
+
+        .notif-card {
+            background: white; border-radius: 8px; border: 1px solid #E2DDD6;
+            margin-bottom: 10px; padding: 16px 20px;
+            display: flex; align-items: center; gap: 15px; cursor: pointer;
+        }
+        .notif-card.non-lue { border-left: 4px solid #1B2A4A; background: #F8F9FF; }
+        .notif-icon {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: #D6E4F0; display: flex; align-items: center;
+            justify-content: center; font-size: 18px; flex-shrink: 0;
+        }
+        .notif-content { flex: 1; }
+        .notif-titre { font-size: 14px; font-weight: bold; color: #1A1A2E; margin-bottom: 3px; }
+        .notif-message { font-size: 13px; color: #6B7280; }
+        .notif-date { font-size: 11px; color: #6B7280; flex-shrink: 0; }
+        .btn-marquer-lu {
+            background: none; border: 1px solid #E2DDD6;
+            padding: 4px 10px; border-radius: 4px; font-size: 11px;
+            cursor: pointer; color: #6B7280;
+        }
+
+        .profil-form {
+            background: white; border-radius: 8px;
+            border: 1px solid #E2DDD6; padding: 30px; max-width: 600px;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block; font-size: 12px; color: #6B7280;
+            margin-bottom: 6px; text-transform: uppercase;
+        }
+        .form-group input {
+            width: 100%; padding: 10px; border: 1px solid #E2DDD6;
+            border-radius: 4px; font-size: 14px;
+        }
+        .form-row { display: flex; gap: 15px; }
+        .form-row .form-group { flex: 1; }
+        .btn-save {
+            background: #1B2A4A; color: white; border: none;
+            padding: 12px 30px; border-radius: 4px; cursor: pointer;
+            font-size: 14px; font-weight: bold;
+        }
+        .message-success {
+            background: #D5F0E4; color: #1A6B4A;
+            padding: 10px 15px; border-radius: 4px;
+            margin-bottom: 15px; font-size: 13px;
+        }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: #6B7280; }
+        .empty-icon { font-size: 50px; margin-bottom: 15px; }
+        .empty-text { font-size: 16px; margin-bottom: 20px; }
+        .btn-explorer {
+            background: #1B2A4A; color: white; border: none;
+            padding: 12px 25px; border-radius: 4px; cursor: pointer; font-size: 14px;
+        }
+
+        footer {
+            background: #0D1117; color: #D6E4F0;
+            text-align: center; padding: 20px; font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const API_URL = "http://localhost/web2026/voyagevista/backend";
+
+const reservationsDemo = [
+    { id:1, nom:"Maldives — Velaa Private Island", dates:"15 au 22 juin 2026", prix:8570, statut:"confirmee", emoji:"🏝️", reference:"VV-20260515-ABC123" },
+    { id:2, nom:"Bali — The Mulia Resort", dates:"10 au 17 août 2026", prix:5200, statut:"en_attente", emoji:"🌺", reference:"VV-20260610-DEF456" },
+    { id:3, nom:"Santorini — Canaves Oia", dates:"2 au 9 octobre 2026", prix:3900, statut:"brouillon", emoji:"🏛️", reference:"VV-20260702-GHI789" },
+];
+
+const notificationsDemo = [
+    { id:1, titre:"Réservation confirmée", message:"Votre séjour aux Maldives du 15 au 22 juin a été confirmé.", date:"Aujourd'hui à 10:30", lu:false, icon:"✅" },
+    { id:2, titre:"Rappel de départ", message:"Votre vol Paris → Malé part dans 48h. Pensez à préparer vos bagages.", date:"Hier à 09:15", lu:false, icon:"✈️" },
+    { id:3, titre:"Modification hébergement", message:"Les dates de votre villa ont été mises à jour avec succès.", date:"Il y a 3 jours", lu:true, icon:"🏨" },
+    { id:4, titre:"Offre spéciale", message:"Profitez de 10% de réduction sur certaines activités à Bali jusqu'au 30 juin.", date:"Il y a 5 jours", lu:true, icon:"🎁" },
+];
+
+// ── NAVBAR ────────────────────────────────────────────────
+function Navbar({ user }) {
+    return (
+        <nav className="navbar">
+            <div className="navbar-logo"
+                onClick={() => window.location.href='index.html'}>
+                ✦ VoyageVista
+            </div>
+            <div className="navbar-links">
+                <a href="index.html">Accueil</a>
+                <a href="catalogue.html">Destinations</a>
+                <a href="panier.html">🛒 Mon panier</a>
+            </div>
+            <div>
+                {user && (
+                    <span style={{color:'white', fontSize:'13px'}}>
+                        {user.prenom} {user.nom} &nbsp;
+                        <button className="navbar-btn" onClick={() => {
+                            localStorage.removeItem('vv_user');
+                            localStorage.removeItem('vv_token');
+                            window.location.href = 'index.html';
+                        }}>
+                            Déconnexion
+                        </button>
+                    </span>
+                )}
+            </div>
+        </nav>
+    );
+}
+
+// ── RESERVATIONS ──────────────────────────────────────────
+function MesReservations() {
+    const [reservations, setReservations] = React.useState([]);
+    const [user, setUser] = useState(() => {
+    try {
+        return JSON.parse(localStorage.getItem('vv_user')) || null;
+    } catch(e) {
+        return null;
+    }
+});
+
+    React.useEffect(() => {
+        if (!user) return;
+        fetch(`http://localhost/web2026/voyagevista/backend/index.php/reservations?id_utilisateur=${user.id}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.data.length > 0) {
+                    setReservations(data.data);
+                } else {
+                    setReservations(reservationsDemo); // fallback démo
+                }
+            })
+            .catch(() => setReservations(reservationsDemo));
+    }, []);
+
+    function getBadge(statut) {
+        switch(statut) {
+            case 'confirmee': return <span className="badge badge-success">✓ Confirmée</span>;
+            case 'en_attente': return <span className="badge badge-warning">⏳ En attente</span>;
+            case 'brouillon': return <span className="badge badge-gray">📝 Brouillon</span>;
+            case 'annulee': return <span className="badge badge-danger">✕ Annulée</span>;
+            default: return null;
+        }
+    }
+
+    function getAccentColor(statut) {
+        switch(statut) {
+            case 'confirmee': return '#1A6B4A';
+            case 'en_attente': return '#C75B00';
+            case 'brouillon': return '#6B7280';
+            case 'annulee': return '#E24B4A';
+            default: return '#1B2A4A';
+        }
+    }
+
+    function annulerResa(id) {
+        if (window.confirm('Confirmer l\'annulation de cette réservation ?')) {
+            setReservations(reservations.map(r =>
+                r.id === id ? {...r, statut:'annulee'} : r
+            ));
+        }
+    }
+
+    if (reservations.length === 0) {
+        return (
+            <div className="empty-state">
+                <div className="empty-icon">🧳</div>
+                <div className="empty-text">Vous n'avez pas encore de réservations</div>
+                <button className="btn-explorer"
+                    onClick={() => window.location.href='catalogue.html'}>
+                    Explorer les destinations
+                </button>
+            </div>
+        );
+    }
+
+    return (
+        <div>
+            {reservations.map(resa => (
+                <div key={resa.id} className="resa-card">
+                    <div className="resa-accent"
+                        style={{background: getAccentColor(resa.statut)}}></div>
+                    <div className="resa-body">
+                        <div className="resa-img">{resa.emoji}</div>
+                        <div className="resa-info">
+                            <div className="resa-nom">{resa.nom}</div>
+                            <div className="resa-dates">📅 {resa.dates}</div>
+                            <div className="resa-prix">{resa.prix.toLocaleString()} €</div>
+                            <div style={{fontSize:'11px', color:'#6B7280', marginTop:'4px'}}>
+                                Réf: {resa.reference}
+                            </div>
+                        </div>
+                        <div className="resa-actions">
+                            {getBadge(resa.statut)}
+                            <button className="btn-details"
+                                onClick={() => window.location.href='destination.html'}>
+                                Voir détails
+                            </button>
+                            {resa.statut !== 'annulee' && (
+                                <button className="btn-annuler"
+                                    onClick={() => annulerResa(resa.id)}>
+                                    Annuler
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────────
+function MesNotifications() {
+    const [notifications, setNotifications] = React.useState([]);
+    const user = (() => { try { return JSON.parse(localStorage.getItem('vv_user')); } catch(e) { return null; } })();
+    React.useEffect(() => {
+        if (!user) return;
+        fetch(`http://localhost/web2026/voyagevista/backend/index.php/notifications?id_utilisateur=${user.id}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.data.length > 0) {
+                    setNotifications(data.data);
+                } else {
+                    setNotifications(notificationsDemo); // fallback démo
+                }
+            })
+            .catch(() => setNotifications(notificationsDemo));
+    }, []);
+    const nbNonLues = notifications.filter(n => !n.lu).length;
+
+    function marquerLu(id) {
+        setNotifications(notifications.map(n => n.id === id ? {...n, lu:true} : n));
+    }
+    function marquerTousLus() {
+        setNotifications(notifications.map(n => ({...n, lu:true})));
+    }
+    function supprimerNotif(id) {
+        setNotifications(notifications.filter(n => n.id !== id));
+    }
+
+    return (
+        <div>
+            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'20px'}}>
+                <span style={{fontSize:'14px', color:'#6B7280'}}>
+                    {nbNonLues > 0 ? `${nbNonLues} non lue(s)` : 'Tout est lu'}
+                </span>
+                {nbNonLues > 0 && (
+                    <button className="btn-marquer-lu" onClick={marquerTousLus}>
+                        Tout marquer comme lu
+                    </button>
+                )}
+            </div>
+            {notifications.map(notif => (
+                <div key={notif.id}
+                    className={`notif-card ${!notif.lu ? 'non-lue' : ''}`}
+                    onClick={() => marquerLu(notif.id)}>
+                    <div className="notif-icon">{notif.icon}</div>
+                    <div className="notif-content">
+                        <div className="notif-titre">{notif.titre}</div>
+                        <div className="notif-message">{notif.message}</div>
+                    </div>
+                    <div style={{display:'flex', flexDirection:'column', alignItems:'flex-end', gap:'8px'}}>
+                        <div className="notif-date">{notif.date}</div>
+                        <button className="btn-marquer-lu"
+                            onClick={(e) => { e.stopPropagation(); supprimerNotif(notif.id); }}>
+                            Supprimer
+                        </button>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+// ── MON PROFIL ────────────────────────────────────────────
+function MonProfil({ user }) {
+    const [nom, setNom] = useState(user?.nom || '');
+    const [prenom, setPrenom] = useState(user?.prenom || '');
+    const [email, setEmail] = useState(user?.email || '');
+    const [telephone, setTelephone] = useState('');
+    const [message, setMessage] = useState('');
+
+    function handleSave(e) {
+    e.preventDefault();
+    fetch(`http://localhost/web2026/voyagevista/backend/index.php/auth?id=${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nom, prenom, email, telephone })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            const updatedUser = {...user, nom, prenom, email};
+            localStorage.setItem('vv_user', JSON.stringify(updatedUser));
+            setMessage('Profil mis à jour avec succès !');
+            setTimeout(() => setMessage(''), 3000);
+        }
+    })
+    .catch(() => {
+        // Fallback local si API fail
+        localStorage.setItem('vv_user', JSON.stringify({...user, nom, prenom, email}));
+        setMessage('Profil mis à jour !');
+    });
+}
+
+    return (
+        <div className="profil-form">
+            {message && <div className="message-success">{message}</div>}
+            <form onSubmit={handleSave}>
+                <div className="form-row">
+                    <div className="form-group">
+                        <label>Prénom</label>
+                        <input type="text" value={prenom}
+                            onChange={e => setPrenom(e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                        <label>Nom</label>
+                        <input type="text" value={nom}
+                            onChange={e => setNom(e.target.value)} />
+                    </div>
+                </div>
+                <div className="form-group">
+                    <label>Email</label>
+                    <input type="email" value={email}
+                        onChange={e => setEmail(e.target.value)} />
+                </div>
+                <div className="form-group">
+                    <label>Téléphone</label>
+                    <input type="tel" placeholder="+33 6 00 00 00 00"
+                        value={telephone}
+                        onChange={e => setTelephone(e.target.value)} />
+                </div>
+                <div className="form-group">
+                    <label>Rôle</label>
+                    <input type="text" value={user?.role || 'voyageur'} disabled
+                        style={{background:'#F8F6F1', color:'#6B7280'}} />
+                </div>
+                <button type="submit" className="btn-save">
+                    Sauvegarder les modifications
+                </button>
+            </form>
+        </div>
+    );
+}
+function MesItineraires({ user }) {
+    const [sejours, setSejours] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
+    const [showForm, setShowForm] = React.useState(false);
+    const [titre, setTitre] = React.useState('');
+    const [dateDebut, setDateDebut] = React.useState('');
+    const [dateFin, setDateFin] = React.useState('');
+    const [nbVoyageurs, setNbVoyageurs] = React.useState(2);
+    const [message, setMessage] = React.useState('');
+
+    React.useEffect(() => {
+        fetch(`http://localhost/web2026/voyagevista/backend/index.php/sejours?id_utilisateur=${user.id}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) setSejours(data.data);
+                setLoading(false);
+            })
+            .catch(() => setLoading(false));
+    }, []);
+
+    function creerSejour(e) {
+        e.preventDefault();
+        fetch('http://localhost/web2026/voyagevista/backend/index.php/sejours', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                titre, date_debut: dateDebut, date_fin: dateFin,
+                nb_voyageurs: nbVoyageurs, id_utilisateur: user.id
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                setMessage('Itinéraire créé !');
+                setShowForm(false);
+                setSejours([...sejours, {
+                    id_sejour: data.id, titre, date_debut: dateDebut,
+                    date_fin: dateFin, nb_voyageurs: nbVoyageurs,
+                    statut: 'brouillon', prix_total: 0
+                }]);
+            }
+        });
+    }
+
+    function supprimerSejour(id) {
+        if (!window.confirm('Supprimer cet itinéraire ?')) return;
+        fetch(`http://localhost/web2026/voyagevista/backend/index.php/sejours?id=${id}`, {
+            method: 'DELETE'
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) setSejours(sejours.filter(s => s.id_sejour !== id));
+        });
+    }
+
+    function getStatutBadge(statut) {
+        switch(statut) {
+            case 'confirme': return <span className="badge badge-success">✓ Confirmé</span>;
+            case 'en_attente': return <span className="badge badge-warning">⏳ En attente</span>;
+            case 'brouillon': return <span className="badge badge-gray">📝 Brouillon</span>;
+            case 'annule': return <span className="badge badge-danger">✕ Annulé</span>;
+            default: return null;
+        }
+    }
+
+    if (loading) return <div style={{textAlign:'center', padding:'40px', color:'#6B7280'}}>Chargement...</div>;
+
+    return (
+        <div>
+            {message && <div className="message-success">{message}</div>}
+
+            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'20px'}}>
+                <span style={{fontSize:'14px', color:'#6B7280'}}>{sejours.length} itinéraire(s)</span>
+                <button style={{
+                    background:'#1B2A4A', color:'white', border:'none',
+                    padding:'9px 18px', borderRadius:'4px', cursor:'pointer', fontSize:'13px'
+                }} onClick={() => setShowForm(!showForm)}>
+                    + Nouvel itinéraire
+                </button>
+            </div>
+
+            {showForm && (
+                <div style={{background:'white', border:'1px solid #E2DDD6', borderRadius:'8px', padding:'20px', marginBottom:'20px'}}>
+                    <div style={{fontWeight:'bold', marginBottom:'15px', color:'#1B2A4A'}}>Créer un itinéraire</div>
+                    <form onSubmit={creerSejour}>
+                        <div className="form-group">
+                            <label>Titre du séjour</label>
+                            <input type="text" placeholder="ex: Escapade Maldives été 2026"
+                                value={titre} onChange={e => setTitre(e.target.value)} required />
+                        </div>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label>Date de début</label>
+                                <input type="date" value={dateDebut}
+                                    onChange={e => setDateDebut(e.target.value)} required />
+                            </div>
+                            <div className="form-group">
+                                <label>Date de fin</label>
+                                <input type="date" value={dateFin}
+                                    onChange={e => setDateFin(e.target.value)} required />
+                            </div>
+                            <div className="form-group">
+                                <label>Voyageurs</label>
+                                <input type="number" min="1" value={nbVoyageurs}
+                                    onChange={e => setNbVoyageurs(Number(e.target.value))} />
+                            </div>
+                        </div>
+                        <button type="submit" className="btn-save">Créer</button>
+                    </form>
+                </div>
+            )}
+
+            {sejours.length === 0 ? (
+                <div className="empty-state">
+                    <div className="empty-icon">🗺️</div>
+                    <div className="empty-text">Pas encore d'itinéraires</div>
+                    <button className="btn-explorer"
+                        onClick={() => window.location.href='catalogue.html'}>
+                        Planifier un voyage
+                    </button>
+                </div>
+            ) : (
+                sejours.map(s => (
+                    <div key={s.id_sejour} className="resa-card">
+                        <div className="resa-accent" style={{background:'#185FA5'}}></div>
+                        <div className="resa-body">
+                            <div className="resa-img">🗺️</div>
+                            <div className="resa-info">
+                                <div className="resa-nom">{s.titre}</div>
+                                <div className="resa-dates">
+                                    📅 {s.date_debut} → {s.date_fin} · 👥 {s.nb_voyageurs} voyageur(s)
+                                </div>
+                                <div className="resa-prix">
+                                    {s.prix_total > 0 ? `${Number(s.prix_total).toLocaleString()} €` : 'Prix non calculé'}
+                                </div>
+                            </div>
+                            <div className="resa-actions">
+                                {getStatutBadge(s.statut)}
+                                <button className="btn-details"
+                                    onClick={() => window.location.href='destination.html'}>
+                                    Modifier
+                                </button>
+                                <button className="btn-annuler"
+                                    onClick={() => supprimerSejour(s.id_sejour)}>
+                                    Supprimer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ))
+            )}
+        </div>
+    );
+}
+// ── APP PRINCIPAL ─────────────────────────────────────────
+function App() {
+    const [user, setUser] = useState(() => {
+    try {
+        return JSON.parse(localStorage.getItem('vv_user')) || null;
+    } catch(e) {
+        return null;
+    }
+});
+    const [ongletActif, setOngletActif] = useState('reservations');
+
+    if (!user) {
+        return (
+            <div style={{textAlign:'center', padding:'100px 20px'}}>
+                <div style={{fontSize:'50px', marginBottom:'20px'}}>🔒</div>
+                <h2 style={{color:'#1B2A4A', marginBottom:'10px'}}>Accès réservé</h2>
+                <p style={{color:'#6B7280', marginBottom:'25px'}}>
+                    Vous devez être connecté pour accéder à votre espace.
+                </p>
+                <button className="btn-explorer"
+                    onClick={() => window.location.href='index.html'}>
+                    Se connecter
+                </button>
+            </div>
+        );
+    }
+
+    const initiales = (user.prenom?.[0] || '') + (user.nom?.[0] || '');
+    const nbNotifNonLues = notificationsDemo.filter(n => !n.lu).length;
+
+    const menuItems = [
+    { id: 'reservations', label: 'Mes réservations', icon: '🧳' },
+    { id: 'itineraires', label: 'Mes itinéraires', icon: '🗺️' },
+    { id: 'notifications', label: 'Notifications', icon: '🔔', badge: nbNotifNonLues },
+    { id: 'profil', label: 'Mon profil', icon: '👤' },
+    { id: 'favoris', label: 'Mes favoris', icon: '❤️' },
+];
+
+    function renderContenu() {
+        switch(ongletActif) {
+            case 'reservations': return <MesReservations />;
+            case 'notifications': return <MesNotifications />;
+            case 'profil': return <MonProfil user={user} />;
+            case 'itineraires': return <MesItineraires user={user} />;
+            case 'favoris':
+                return (
+                    <div className="empty-state">
+                        <div className="empty-icon">❤️</div>
+                        <div className="empty-text">Vous n'avez pas encore de favoris</div>
+                        <button className="btn-explorer"
+                            onClick={() => window.location.href='catalogue.html'}>
+                            Explorer les destinations
+                        </button>
+                    </div>
+                );
+            default: return null;
+        }
+    }
+
+    function getTitreOnglet() {
+        switch(ongletActif) {
+            case 'reservations': return 'Mes réservations';
+            case 'notifications': return 'Mes notifications';
+            case 'profil': return 'Mon profil';
+            case 'favoris': return 'Mes favoris';
+            case 'itineraires': return 'Mes itinéraires';
+            default: return '';
+        }
+    }
+
+    return (
+        <div>
+            <Navbar user={user} />
+            <div className="layout">
+                <div className="sidebar">
+                    <div className="sidebar-profile">
+                        <div className="avatar">{initiales.toUpperCase()}</div>
+                        <div className="profile-name">{user.prenom} {user.nom}</div>
+                        <div className="profile-role">{user.email}</div>
+                        <div className="profile-badge">
+                            {user.role === 'voyageur' ? '✈️ Voyageur' :
+                             user.role === 'admin' ? '⚙️ Admin' :
+                             user.role === 'prestataire' ? '🏨 Prestataire' : user.role}
+                        </div>
+                    </div>
+                    <div className="sidebar-menu">
+                        {menuItems.map(item => (
+                            <div key={item.id}
+                                className={`menu-item ${ongletActif === item.id ? 'active' : ''}`}
+                                onClick={() => setOngletActif(item.id)}>
+                                <span className="menu-icon">{item.icon}</span>
+                                <span>{item.label}</span>
+                                {item.badge > 0 && (
+                                    <span className="notif-badge">{item.badge}</span>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <div className="main-content">
+                    <div className="page-title">{getTitreOnglet()}</div>
+                    {renderContenu()}
+                </div>
+            </div>
+            <footer>
+                © 2026 VoyageVista — FARES · BENZIDOUN · ADDOU · ANDRIAMPARANY
+            </footer>
+        </div>
+    );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>
