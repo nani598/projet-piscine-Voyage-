@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>VoyageVista - Catalogue</title>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #F8F6F1; color: #1A1A2E; }
+
+        .navbar {
+            background: #1B2A4A;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-logo { color: white; font-size: 22px; font-weight: bold; cursor: pointer; }
+        .navbar-links a { color: #D6E4F0; text-decoration: none; margin-left: 25px; font-size: 14px; }
+        .navbar-btn {
+            background: transparent; color: white; border: 1px solid white;
+            padding: 8px 16px; cursor: pointer; border-radius: 4px; margin-left: 10px; font-size: 13px;
+        }
+
+        /* BARRE RECHERCHE */
+        .search-section {
+            background: #1B2A4A;
+            padding: 30px 40px;
+        }
+        .search-bar {
+            background: white;
+            border-radius: 8px;
+            padding: 15px 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            color: #1A1A2E;
+        }
+        .search-btn {
+            background: #1B2A4A;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* LAYOUT */
+        .layout {
+            display: flex;
+            gap: 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        /* SIDEBAR FILTRES */
+        .sidebar-filtres {
+            width: 240px;
+            background: white;
+            border-right: 1px solid #E2DDD6;
+            padding: 25px 20px;
+            flex-shrink: 0;
+        }
+        .filtre-titre {
+            font-size: 13px;
+            font-weight: bold;
+            color: #1B2A4A;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .reinit-btn {
+            background: none;
+            border: none;
+            color: #6B7280;
+            font-size: 11px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .filtre-section { margin-bottom: 25px; }
+        .filtre-label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #1A1A2E;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .filtre-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #6B7280;
+        }
+        .filtre-option input[type="checkbox"] { cursor: pointer; accent-color: #1B2A4A; }
+        .filtre-option:hover { color: #1B2A4A; }
+        .range-input {
+            width: 100%;
+            accent-color: #1B2A4A;
+            margin-top: 8px;
+        }
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #6B7280;
+            margin-top: 4px;
+        }
+
+        /* CONTENU PRINCIPAL */
+        .main-content { flex: 1; padding: 25px 30px; }
+
+        /* BARRE DE TRI */
+        .tri-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .resultat-count { font-size: 14px; color: #6B7280; }
+        .tri-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+        .tri-pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #E2DDD6;
+            background: white;
+            font-size: 12px;
+            cursor: pointer;
+            color: #6B7280;
+        }
+        .tri-pill.active {
+            background: #1B2A4A;
+            color: white;
+            border-color: #1B2A4A;
+        }
+
+        /* GRILLE DESTINATIONS */
+        .destinations-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .dest-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #E2DDD6;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .dest-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .dest-card-img {
+            width: 100%;
+            height: 180px;
+            background: #D6E4F0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            position: relative;
+        }
+        .dest-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #1B2A4A;
+            color: white;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+        .dest-favori {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            border: none;
+        }
+        .dest-card-body { padding: 15px; }
+        .dest-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 5px;
+        }
+        .dest-card-nom { font-size: 16px; font-weight: bold; color: #1A1A2E; }
+        .dest-card-note {
+            font-size: 12px;
+            color: #6B7280;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .dest-card-pays { font-size: 13px; color: #6B7280; margin-bottom: 10px; }
+        .dest-card-infos {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        .dest-info-pill {
+            background: #F8F6F1;
+            border: 1px solid #E2DDD6;
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 11px;
+            color: #6B7280;
+        }
+        .dest-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dest-card-prix {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1B2A4A;
+        }
+        .dest-card-prix span {
+            font-size: 11px;
+            font-weight: normal;
+            color: #6B7280;
+        }
+        .dest-card-btn {
+            background: #1B2A4A;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .dest-card-btn:hover { background: #2C3E6B; }
+
+        /* PAGINATION */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 30px;
+        }
+        .page-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            border: 1px solid #E2DDD6;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            color: #6B7280;
+        }
+        .page-btn.active {
+            background: #1B2A4A;
+            color: white;
+            border-color: #1B2A4A;
+        }
+
+        /* VIDE */
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #6B7280;
+        }
+
+        footer {
+            background: #0D1117;
+            color: #D6E4F0;
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+// Données de démonstration
+const toutesDestinations = [
+    { id:1,  nom:"Maldives",          pays:"Océan Indien",       image:"images/destinations/maldives.jpg",   prix:2490, note:4.9, type:"Plage",      duree:"7 jours",  continent:"Asie" },
+    { id:2,  nom:"Bali",               pays:"Indonésie",           image:"images/destinations/bali.jpg",        prix:1890, note:4.8, type:"Aventure",   duree:"10 jours", continent:"Asie" },
+    { id:3,  nom:"Santorini",          pays:"Grèce",               image:"images/destinations/santorini.jpg",   prix:2100, note:4.9, type:"Romantique", duree:"5 jours",  continent:"Europe" },
+    { id:4,  nom:"Dubaï",              pays:"Émirats Arabes Unis", image:"images/destinations/dubai.jpg",       prix:1650, note:4.7, type:"Luxe",       duree:"6 jours",  continent:"Moyen-Orient" },
+    { id:5,  nom:"Seychelles",         pays:"Afrique",             image:"images/destinations/seychelles.jpg",  prix:3100, note:4.9, type:"Plage",      duree:"8 jours",  continent:"Afrique" },
+    { id:6,  nom:"Tokyo",              pays:"Japon",               image:"images/destinations/tokyo.jpg",       prix:2800, note:4.8, type:"Culture",    duree:"10 jours", continent:"Asie" },
+    { id:7,  nom:"Marrakech",          pays:"Maroc",               image:"images/destinations/marrakech.jpg",   prix:1200, note:4.6, type:"Culture",    duree:"5 jours",  continent:"Afrique" },
+    { id:8,  nom:"New York",           pays:"États-Unis",          image:"images/destinations/new-york.jpg",    prix:2200, note:4.7, type:"Ville",      duree:"7 jours",  continent:"Amérique" },
+    { id:9,  nom:"Paris",              pays:"France",              image:"images/destinations/paris.jpg",       prix:1500, note:4.8, type:"Romantique", duree:"4 jours",  continent:"Europe" },
+    { id:10, nom:"Phuket",             pays:"Thaïlande",           image:"images/destinations/phuket.jpg",      prix:1750, note:4.7, type:"Plage",      duree:"8 jours",  continent:"Asie" },
+    { id:11, nom:"Safari Kenya",       pays:"Kenya",               image:"images/destinations/kenya.jpg",       prix:3500, note:5.0, type:"Aventure",   duree:"10 jours", continent:"Afrique" },
+    { id:12, nom:"Côte Amalfitaine",   pays:"Italie",              image:"images/destinations/amalfi.jpg",      prix:2300, note:4.8, type:"Romantique", duree:"6 jours",  continent:"Europe" },
+];
+
+// ── NAVBAR ────────────────────────────────────────────────
+function Navbar() {
+    const [user, setUser] = useState(() => {
+    try {
+        return JSON.parse(localStorage.getItem('vv_user')) || null;
+    } catch(e) {
+        return null;
+    }
+});
+    return (
+        <nav className="navbar">
+            <div className="navbar-logo" onClick={() => window.location.href='index.html'}>
+                ✦ VoyageVista
+            </div>
+            <div className="navbar-links">
+                <a href="index.html">Accueil</a>
+                <a href="catalogue.html" style={{color:'white', fontWeight:'bold'}}>Destinations</a>
+                <a href="#">Hôtels</a>
+                <a href="#">Activités</a>
+            </div>
+            <div>
+                {user ? (
+                    <span style={{color:'white', fontSize:'13px'}}>
+                        {user.prenom} &nbsp;
+                        <button className="navbar-btn"
+                            onClick={() => window.location.href='espace-voyageur.html'}>
+                            Mon espace
+                        </button>
+                    </span>
+                ) : (
+                    <button className="navbar-btn"
+                        onClick={() => window.location.href='index.html'}>
+                        Connexion
+                    </button>
+                )}
+            </div>
+        </nav>
+    );
+}
+
+// ── CARTE DESTINATION ─────────────────────────────────────
+function CarteDestination({ dest }) {
+    const [favori, setFavori] = useState(false);
+
+    return (
+        <div className="dest-card">
+            <div className="dest-card-img" style={{backgroundImage:`url(${dest.image})`, backgroundSize:"cover", backgroundPosition:"center"}}>
+                <span className="dest-badge">{dest.type}</span>
+                <button className="dest-favori" onClick={(e) => {
+                    e.stopPropagation();
+                    setFavori(!favori);
+                }}>
+                    {favori ? '❤️' : '🤍'}
+                </button>
+            </div>
+            <div className="dest-card-body">
+                <div className="dest-card-header">
+                    <div className="dest-card-nom">{dest.nom}</div>
+                    <div className="dest-card-note">⭐ {dest.note}</div>
+                </div>
+                <div className="dest-card-pays">📍 {dest.pays}</div>
+                <div className="dest-card-infos">
+                    <span className="dest-info-pill">📅 {dest.duree}</span>
+                    <span className="dest-info-pill">🌍 {dest.continent}</span>
+                </div>
+                <div className="dest-card-footer">
+                    <div className="dest-card-prix">
+                        {dest.prix.toLocaleString()} € <span>/ personne</span>
+                    </div>
+                    <button className="dest-card-btn"
+    onClick={() => window.location.href='destination.html?id=' + dest.id}>
+    Voir le séjour
+</button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ── APP PRINCIPAL ─────────────────────────────────────────
+function App() {
+    const [recherche, setRecherche] = useState('');
+    const [triActif, setTriActif] = useState('recommandes');
+    const [filtreTypes, setFiltreTypes] = useState([]);
+    const [filtreContinents, setFiltreContinents] = useState([]);
+    const [prixMax, setPrixMax] = useState(5000);
+    const [page, setPage] = useState(1);
+    const parPage = 6;
+
+    // Récupérer la recherche depuis l'URL si vient de l'accueil
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('q')) setRecherche(params.get('q'));
+    }, []);
+
+    function toggleType(type) {
+        setFiltreTypes(prev =>
+            prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+        );
+        setPage(1);
+    }
+
+    function toggleContinent(cont) {
+        setFiltreContinents(prev =>
+            prev.includes(cont) ? prev.filter(c => c !== cont) : [...prev, cont]
+        );
+        setPage(1);
+    }
+
+    function reinitFiltres() {
+        setFiltreTypes([]);
+        setFiltreContinents([]);
+        setPrixMax(5000);
+        setRecherche('');
+        setPage(1);
+    }
+
+    // Filtrage
+    let destFiltrees = toutesDestinations.filter(d => {
+        const matchRecherche = d.nom.toLowerCase().includes(recherche.toLowerCase()) ||
+                               d.pays.toLowerCase().includes(recherche.toLowerCase());
+        const matchType = filtreTypes.length === 0 || filtreTypes.includes(d.type);
+        const matchContinent = filtreContinents.length === 0 || filtreContinents.includes(d.continent);
+        const matchPrix = d.prix <= prixMax;
+        return matchRecherche && matchType && matchContinent && matchPrix;
+    });
+
+    // Tri
+    switch(triActif) {
+        case 'prix_asc': destFiltrees.sort((a,b) => a.prix - b.prix); break;
+        case 'prix_desc': destFiltrees.sort((a,b) => b.prix - a.prix); break;
+        case 'note': destFiltrees.sort((a,b) => b.note - a.note); break;
+        default: break;
+    }
+
+    // Pagination
+    const nbPages = Math.ceil(destFiltrees.length / parPage);
+    const destPage = destFiltrees.slice((page-1)*parPage, page*parPage);
+
+    const types = [...new Set(toutesDestinations.map(d => d.type))];
+    const continents = [...new Set(toutesDestinations.map(d => d.continent))];
+
+    return (
+        <div>
+            <Navbar />
+
+            {/* BARRE DE RECHERCHE */}
+            <div className="search-section">
+                <div className="search-bar">
+                    <span style={{fontSize:'18px'}}>🔍</span>
+                    <input className="search-input"
+                        type="text"
+                        placeholder="Rechercher une destination, un pays..."
+                        value={recherche}
+                        onChange={e => { setRecherche(e.target.value); setPage(1); }} />
+                    <button className="search-btn">Rechercher</button>
+                </div>
+            </div>
+
+            <div className="layout">
+                {/* SIDEBAR FILTRES */}
+                <div className="sidebar-filtres">
+                    <div className="filtre-titre">
+                        Filtres
+                        <button className="reinit-btn" onClick={reinitFiltres}>
+                            Réinitialiser
+                        </button>
+                    </div>
+
+                    {/* Budget */}
+                    <div className="filtre-section">
+                        <span className="filtre-label">Budget max / personne</span>
+                        <input type="range" className="range-input"
+                            min="500" max="5000" step="100"
+                            value={prixMax}
+                            onChange={e => { setPrixMax(Number(e.target.value)); setPage(1); }} />
+                        <div className="range-labels">
+                            <span>500 €</span>
+                            <span style={{color:'#1B2A4A', fontWeight:'bold'}}>{prixMax} €</span>
+                        </div>
+                    </div>
+
+                    {/* Type de séjour */}
+                    <div className="filtre-section">
+                        <span className="filtre-label">Type de séjour</span>
+                        {types.map(type => (
+                            <label key={type} className="filtre-option">
+                                <input type="checkbox"
+                                    checked={filtreTypes.includes(type)}
+                                    onChange={() => toggleType(type)} />
+                                {type}
+                            </label>
+                        ))}
+                    </div>
+
+                    {/* Continent */}
+                    <div className="filtre-section">
+                        <span className="filtre-label">Continent</span>
+                        {continents.map(cont => (
+                            <label key={cont} className="filtre-option">
+                                <input type="checkbox"
+                                    checked={filtreContinents.includes(cont)}
+                                    onChange={() => toggleContinent(cont)} />
+                                {cont}
+                            </label>
+                        ))}
+                    </div>
+                </div>
+
+                {/* CONTENU PRINCIPAL */}
+                <div className="main-content">
+                    {/* BARRE DE TRI */}
+                    <div className="tri-bar">
+                        <div className="resultat-count">
+                            {destFiltrees.length} destination(s) trouvée(s)
+                        </div>
+                        <div className="tri-pills">
+                            {[
+                                {id:'recommandes', label:'Recommandés'},
+                                {id:'prix_asc', label:'Prix croissant'},
+                                {id:'prix_desc', label:'Prix décroissant'},
+                                {id:'note', label:'Mieux notés'},
+                            ].map(tri => (
+                                <button key={tri.id}
+                                    className={`tri-pill ${triActif === tri.id ? 'active' : ''}`}
+                                    onClick={() => setTriActif(tri.id)}>
+                                    {tri.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* GRILLE */}
+                    {destPage.length === 0 ? (
+                        <div className="empty-state">
+                            <div style={{fontSize:'40px', marginBottom:'15px'}}>🔍</div>
+                            <div>Aucune destination trouvée pour ces critères.</div>
+                            <button style={{
+                                background:'#1B2A4A', color:'white', border:'none',
+                                padding:'10px 20px', borderRadius:'4px', cursor:'pointer',
+                                marginTop:'15px'
+                            }} onClick={reinitFiltres}>
+                                Réinitialiser les filtres
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="destinations-grid">
+                            {destPage.map(dest => (
+                                <CarteDestination key={dest.id} dest={dest} />
+                            ))}
+                        </div>
+                    )}
+
+                    {/* PAGINATION */}
+                    {nbPages > 1 && (
+                        <div className="pagination">
+                            <button className="page-btn"
+                                onClick={() => setPage(p => Math.max(1, p-1))}>
+                                ‹
+                            </button>
+                            {Array.from({length: nbPages}, (_, i) => i+1).map(p => (
+                                <button key={p}
+                                    className={`page-btn ${page === p ? 'active' : ''}`}
+                                    onClick={() => setPage(p)}>
+                                    {p}
+                                </button>
+                            ))}
+                            <button className="page-btn"
+                                onClick={() => setPage(p => Math.min(nbPages, p+1))}>
+                                ›
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <footer>
+                © 2026 VoyageVista — FARES · BENZIDOUN · ADDOU · ANDRIAMPARANY
+            </footer>
+        </div>
+    );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>
