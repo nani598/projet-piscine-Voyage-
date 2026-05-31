@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>VoyageVista - Panier</title>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #F8F6F1; color: #1A1A2E; }
+
+        .navbar {
+            background: #1B2A4A;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-logo { color: white; font-size: 22px; font-weight: bold; cursor: pointer; }
+        .navbar-links a { color: #D6E4F0; text-decoration: none; margin-left: 25px; font-size: 14px; }
+        .navbar-btn {
+            background: transparent; color: white; border: 1px solid white;
+            padding: 8px 16px; cursor: pointer; border-radius: 4px; margin-left: 10px; font-size: 13px;
+        }
+
+        /* STEPS */
+        .steps {
+            background: white;
+            border-bottom: 1px solid #E2DDD6;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: center;
+            gap: 0;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 25px;
+            font-size: 13px;
+            color: #6B7280;
+        }
+        .step.active { color: #1B2A4A; font-weight: bold; }
+        .step.done { color: #1A6B4A; }
+        .step-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid #E2DDD6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .step.active .step-circle {
+            background: #1B2A4A;
+            border-color: #1B2A4A;
+            color: white;
+        }
+        .step.done .step-circle {
+            background: #1A6B4A;
+            border-color: #1A6B4A;
+            color: white;
+        }
+        .step-line {
+            width: 60px;
+            height: 2px;
+            background: #E2DDD6;
+        }
+        .step-line.done { background: #1A6B4A; }
+
+        /* LAYOUT */
+        .layout {
+            display: flex;
+            gap: 25px;
+            padding: 30px 40px;
+            align-items: flex-start;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* GAUCHE - PANIER */
+        .panier-section { flex: 1; }
+        .section-titre {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1B2A4A;
+            margin-bottom: 20px;
+        }
+
+        /* CARTES ELEMENTS */
+        .element-card {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #E2DDD6;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .element-accent {
+            height: 4px;
+        }
+        .element-body {
+            padding: 18px 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .element-icon {
+            width: 55px;
+            height: 55px;
+            background: #D6E4F0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .element-info { flex: 1; }
+        .element-categorie {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .element-nom {
+            font-size: 15px;
+            font-weight: bold;
+            color: #1A1A2E;
+            margin-bottom: 3px;
+        }
+        .element-detail {
+            font-size: 12px;
+            color: #6B7280;
+        }
+        .element-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+        .element-prix {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1B2A4A;
+        }
+        .btn-supprimer {
+            background: none;
+            border: 1px solid #E2DDD6;
+            color: #E24B4A;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-modifier {
+            background: none;
+            border: 1px solid #E2DDD6;
+            color: #6B7280;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* TOTAL */
+        .total-card {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #E2DDD6;
+            padding: 20px;
+            margin-top: 15px;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #6B7280;
+            padding: 6px 0;
+            border-bottom: 1px solid #F8F6F1;
+        }
+        .total-final {
+            display: flex;
+            justify-content: space-between;
+            font-size: 20px;
+            font-weight: bold;
+            color: #1B2A4A;
+            padding-top: 12px;
+            margin-top: 6px;
+        }
+        .total-note {
+            font-size: 11px;
+            color: #6B7280;
+            margin-top: 6px;
+            text-align: right;
+        }
+
+        /* DROITE - PAIEMENT */
+        .paiement-section {
+            width: 340px;
+            flex-shrink: 0;
+        }
+        .paiement-card {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #E2DDD6;
+            padding: 25px;
+        }
+        .paiement-titre {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1B2A4A;
+            margin-bottom: 5px;
+        }
+        .paiement-simu {
+            background: #FDE8D0;
+            color: #C75B00;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        /* CARTE CB */
+        .carte-cb {
+            background: #1B2A4A;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: white;
+            position: relative;
+        }
+        .carte-cb-num {
+            font-size: 16px;
+            letter-spacing: 3px;
+            margin: 15px 0 10px;
+            font-family: monospace;
+        }
+        .carte-cb-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .carte-cb-label {
+            font-size: 9px;
+            color: #D6E4F0;
+            text-transform: uppercase;
+        }
+        .carte-cb-valeur { font-size: 13px; }
+        .visa-logo {
+            font-size: 18px;
+            font-weight: bold;
+            font-style: italic;
+            color: #D6E4F0;
+        }
+
+        /* FORMULAIRE PAIEMENT */
+        .form-group { margin-bottom: 15px; }
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            color: #6B7280;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #E2DDD6;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: monospace;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #1B2A4A;
+        }
+        .form-row { display: flex; gap: 12px; }
+        .form-row .form-group { flex: 1; }
+
+        .btn-payer {
+            width: 100%;
+            background: #1B2A4A;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        .btn-payer:hover { background: #2C3E6B; }
+        .btn-payer:disabled {
+            background: #6B7280;
+            cursor: not-allowed;
+        }
+
+        /* SECURITE BADGES */
+        .securite-badges {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .securite-badge {
+            background: #F8F6F1;
+            border: 1px solid #E2DDD6;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #6B7280;
+        }
+
+        /* CONFIRMATION */
+        .confirmation {
+            text-align: center;
+            padding: 60px 40px;
+        }
+        .confirmation-icon { font-size: 70px; margin-bottom: 20px; }
+        .confirmation-titre {
+            font-size: 26px;
+            font-weight: bold;
+            color: #1B2A4A;
+            margin-bottom: 10px;
+        }
+        .confirmation-ref {
+            background: #D5F0E4;
+            color: #1A6B4A;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 15px 0;
+        }
+        .confirmation-texte {
+            font-size: 14px;
+            color: #6B7280;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+        .btn-espace {
+            background: #1B2A4A;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 0 8px;
+        }
+        .btn-accueil {
+            background: white;
+            color: #1B2A4A;
+            border: 1px solid #1B2A4A;
+            padding: 12px 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 0 8px;
+        }
+
+        /* VIDE */
+        .panier-vide {
+            text-align: center;
+            padding: 80px 40px;
+            color: #6B7280;
+        }
+
+        footer {
+            background: #0D1117;
+            color: #D6E4F0;
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const API_URL = "http://localhost/web2026/voyagevista/backend";
+
+// ── NAVBAR ────────────────────────────────────────────────
+function Navbar() {
+    const [user, setUser] = useState(() => {
+    try {
+        return JSON.parse(localStorage.getItem('vv_user')) || null;
+    } catch(e) {
+        return null;
+    }
+});
+    return (
+        <nav className="navbar">
+            <div className="navbar-logo" onClick={() => window.location.href='index.html'}>
+                ✦ VoyageVista
+            </div>
+            <div className="navbar-links">
+                <a href="index.html">Accueil</a>
+                <a href="catalogue.html">Destinations</a>
+            </div>
+            <div>
+                {user ? (
+                    <span style={{color:'white', fontSize:'13px'}}>
+                        {user.prenom} &nbsp;
+                        <button className="navbar-btn"
+                            onClick={() => window.location.href='espace-voyageur.html'}>
+                            Mon espace
+                        </button>
+                    </span>
+                ) : (
+                    <button className="navbar-btn"
+                        onClick={() => window.location.href='index.html'}>
+                        Connexion
+                    </button>
+                )}
+            </div>
+        </nav>
+    );
+}
+
+// ── STEPS ─────────────────────────────────────────────────
+function Steps({ etape }) {
+    const steps = ['Panier', 'Paiement', 'Confirmation'];
+    return (
+        <div className="steps">
+            {steps.map((s, i) => (
+                <React.Fragment key={i}>
+                    {i > 0 && (
+                        <div className={`step-line ${i < etape ? 'done' : ''}`}></div>
+                    )}
+                    <div className={`step ${etape === i+1 ? 'active' : ''} ${etape > i+1 ? 'done' : ''}`}>
+                        <div className="step-circle">
+                            {etape > i+1 ? '✓' : i+1}
+                        </div>
+                        {s}
+                    </div>
+                </React.Fragment>
+            ))}
+        </div>
+    );
+}
+
+// ── APP PRINCIPAL ─────────────────────────────────────────
+function App() {
+    const [etape, setEtape] = useState(1);
+    const [reference, setReference] = useState('');
+
+    // Panier depuis localStorage ou démo
+    const panierDemo = {
+        destination: "Maldives",
+        transport: { compagnie: "Air France", trajet: "Paris → Malé", duree: "10h45", prix: 1580 },
+        hotel: { nom: "The Velaa Private Island", type: "Villa sur pilotis", prix: 950 },
+        activites: [
+            { nom: "Plongée récif corallien", prix: 85 },
+            { nom: "Dîner romantique sur l'eau", prix: 200 },
+        ],
+        dateArrivee: "2026-06-15",
+        dateDepart: "2026-06-22",
+        nbVoyageurs: 2,
+        total: 8570
+    };
+
+    const [panier, setPanier] = useState(
+        JSON.parse(localStorage.getItem('vv_panier')) || panierDemo
+    );
+
+    // Champs paiement
+    const [numeroCarte, setNumeroCarte] = useState('');
+    const [titulaire, setTitulaire] = useState('');
+    const [expiration, setExpiration] = useState('');
+    const [cvv, setCvv] = useState('');
+    const [erreur, setErreur] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const [user, setUser] = useState(() => {
+    try {
+        return JSON.parse(localStorage.getItem('vv_user')) || null;
+    } catch(e) {
+        return null;
+    }
+});
+
+    function supprimerElement(type) {
+        const newPanier = {...panier};
+        if (type === 'transport') newPanier.transport = null;
+        if (type === 'hotel') newPanier.hotel = null;
+        setPanier(newPanier);
+        localStorage.setItem('vv_panier', JSON.stringify(newPanier));
+    }
+
+    function calculerTotal() {
+        let total = 0;
+        if (panier.transport) total += panier.transport.prix * (panier.nbVoyageurs || 2);
+        if (panier.hotel) {
+            const d1 = new Date(panier.dateArrivee || '2026-06-15');
+            const d2 = new Date(panier.dateDepart || '2026-06-22');
+            const nuits = Math.max(1, Math.round((d2-d1)/(1000*60*60*24)));
+            total += panier.hotel.prix * nuits;
+        }
+        if (panier.activites) {
+            panier.activites.forEach(a => total += a.prix * (panier.nbVoyageurs || 2));
+        }
+        return total;
+    }
+
+    // Formatter le numéro de carte
+    function formatCarte(val) {
+        const clean = val.replace(/\D/g, '').slice(0, 16);
+        return clean.replace(/(.{4})/g, '$1 ').trim();
+    }
+
+    function formatExpiration(val) {
+        const clean = val.replace(/\D/g, '').slice(0, 4);
+        if (clean.length >= 2) return clean.slice(0,2) + '/' + clean.slice(2);
+        return clean;
+    }
+
+    function validerPaiement(e) {
+        e.preventDefault();
+        setErreur('');
+
+        const numClean = numeroCarte.replace(/\s/g, '');
+        if (numClean.length !== 16) {
+            setErreur('Numéro de carte invalide (16 chiffres requis).');
+            return;
+        }
+        if (!titulaire) {
+            setErreur('Veuillez saisir le nom du titulaire.');
+            return;
+        }
+        if (expiration.length < 5) {
+            setErreur('Date d\'expiration invalide (MM/AA).');
+            return;
+        }
+        if (cvv.length < 3) {
+            setErreur('CVV invalide (3 chiffres requis).');
+            return;
+        }
+
+        setLoading(true);
+
+        // Simulation paiement 2 secondes
+        setTimeout(() => {
+            const ref = 'VV-' + new Date().getFullYear() +
+                        String(new Date().getMonth()+1).padStart(2,'0') +
+                        String(new Date().getDate()).padStart(2,'0') +
+                        '-' + Math.random().toString(36).substr(2,6).toUpperCase();
+            setReference(ref);
+
+            // Envoyer au backend si connecté
+            if (user) {
+                fetch(API_URL + '/api/reservations.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        id_utilisateur: user.id,
+                        montant_total: calculerTotal(),
+                        reference: ref
+                    })
+                }).catch(() => {});
+            }
+
+            localStorage.removeItem('vv_panier');
+            setLoading(false);
+            setEtape(3);
+        }, 2000);
+    }
+
+    const total = calculerTotal();
+    const nuits = panier.dateArrivee && panier.dateDepart ?
+        Math.max(1, Math.round((new Date(panier.dateDepart) - new Date(panier.dateArrivee))/(1000*60*60*24))) : 7;
+
+    // PAGE CONFIRMATION
+    if (etape === 3) {
+        return (
+            <div>
+                <Navbar />
+                <Steps etape={3} />
+                <div className="confirmation">
+                    <div className="confirmation-icon">✅</div>
+                    <div className="confirmation-titre">Réservation confirmée !</div>
+                    <p style={{color:'#6B7280', marginBottom:'10px'}}>
+                        Merci {user?.prenom || 'cher client'} pour votre confiance.
+                    </p>
+                    <div className="confirmation-ref">
+                        Référence : {reference}
+                    </div>
+                    <div className="confirmation-texte">
+                        Votre séjour à <strong>{panier.destination}</strong> a été réservé avec succès.<br/>
+                        Un email de confirmation vous sera envoyé.<br/>
+                        Notre équipe de conciergerie vous contactera dans les 24h.
+                    </div>
+                    <div>
+                        <button className="btn-espace"
+                            onClick={() => window.location.href='espace-voyageur.html'}>
+                            Voir mes réservations
+                        </button>
+                        <button className="btn-accueil"
+                            onClick={() => window.location.href='index.html'}>
+                            Retour à l'accueil
+                        </button>
+                    </div>
+                </div>
+                <footer>
+                    © 2026 VoyageVista — FARES · BENZIDOUN · ADDOU · ANDRIAMPARANY
+                </footer>
+            </div>
+        );
+    }
+
+    return (
+        <div>
+            <Navbar />
+            <Steps etape={etape} />
+
+            <div className="layout">
+                {/* GAUCHE */}
+                <div className="panier-section">
+                    <div className="section-titre">
+                        {etape === 1 ? '🛒 Mon panier de voyage' : ' Récapitulatif'}
+                    </div>
+
+                    {/* Transport */}
+                    {panier.transport && (
+                        <div className="element-card">
+                            <div className="element-accent" style={{background:'#185FA5'}}></div>
+                            <div className="element-body">
+                                <div className="element-icon">✈️</div>
+                                <div className="element-info">
+                                    <div className="element-categorie" style={{color:'#185FA5'}}>
+                                        Vol aller-retour
+                                    </div>
+                                    <div className="element-nom">{panier.transport.trajet}</div>
+                                    <div className="element-detail">
+                                        {panier.transport.compagnie} · {panier.transport.duree} ·
+                                        {panier.nbVoyageurs} passager(s)
+                                    </div>
+                                </div>
+                                <div className="element-actions">
+                                    <div className="element-prix">
+                                        {(panier.transport.prix * (panier.nbVoyageurs||2)).toLocaleString()} €
+                                    </div>
+                                    {etape === 1 && (
+                                        <button className="btn-supprimer"
+                                            onClick={() => supprimerElement('transport')}>
+                                            Supprimer
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Hotel */}
+                    {panier.hotel && (
+                        <div className="element-card">
+                            <div className="element-accent" style={{background:'#1B2A4A'}}></div>
+                            <div className="element-body">
+                                <div className="element-icon">🏨</div>
+                                <div className="element-info">
+                                    <div className="element-categorie" style={{color:'#1B2A4A'}}>
+                                        Hébergement
+                                    </div>
+                                    <div className="element-nom">{panier.hotel.nom}</div>
+                                    <div className="element-detail">
+                                        {panier.hotel.type} · {nuits} nuits ·
+                                        {panier.dateArrivee} → {panier.dateDepart}
+                                    </div>
+                                </div>
+                                <div className="element-actions">
+                                    <div className="element-prix">
+                                        {(panier.hotel.prix * nuits).toLocaleString()} €
+                                    </div>
+                                    {etape === 1 && (
+                                        <button className="btn-supprimer"
+                                            onClick={() => supprimerElement('hotel')}>
+                                            Supprimer
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Activites */}
+                    {panier.activites && panier.activites.map((act, i) => (
+                        <div key={i} className="element-card">
+                            <div className="element-accent" style={{background:'#1A6B4A'}}></div>
+                            <div className="element-body">
+                                <div className="element-icon">🤿</div>
+                                <div className="element-info">
+                                    <div className="element-categorie" style={{color:'#1A6B4A'}}>
+                                        Activité
+                                    </div>
+                                    <div className="element-nom">{act.nom}</div>
+                                    <div className="element-detail">
+                                        {panier.nbVoyageurs} participant(s)
+                                    </div>
+                                </div>
+                                <div className="element-actions">
+                                    <div className="element-prix">
+                                        {(act.prix * (panier.nbVoyageurs||2)).toLocaleString()} €
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+
+                    {/* TOTAL */}
+                    <div className="total-card">
+                        {panier.transport && (
+                            <div className="total-row">
+                                <span>Vol ({panier.nbVoyageurs} pers.)</span>
+                                <span>{(panier.transport.prix * (panier.nbVoyageurs||2)).toLocaleString()} €</span>
+                            </div>
+                        )}
+                        {panier.hotel && (
+                            <div className="total-row">
+                                <span>Hébergement ({nuits} nuits)</span>
+                                <span>{(panier.hotel.prix * nuits).toLocaleString()} €</span>
+                            </div>
+                        )}
+                        {panier.activites && panier.activites.length > 0 && (
+                            <div className="total-row">
+                                <span>Activités ({panier.activites.length})</span>
+                                <span>{panier.activites.reduce((s,a) => s + a.prix * (panier.nbVoyageurs||2), 0).toLocaleString()} €</span>
+                            </div>
+                        )}
+                        <div className="total-final">
+                            <span>Total du séjour</span>
+                            <span>{total.toLocaleString()} €</span>
+                        </div>
+                        <div className="total-note">Taxes et frais inclus · {panier.nbVoyageurs} adulte(s)</div>
+                    </div>
+
+                    {etape === 1 && (
+                        <button style={{
+                            background:'#1B2A4A', color:'white', border:'none',
+                            padding:'13px 30px', borderRadius:'4px', cursor:'pointer',
+                            fontSize:'14px', fontWeight:'bold', marginTop:'15px',
+                            width:'100%'
+                        }} onClick={() => setEtape(2)}>
+                            Procéder au paiement →
+                        </button>
+                    )}
+                </div>
+
+                {/* DROITE - PAIEMENT */}
+                {etape === 2 && (
+                    <div className="paiement-section">
+                        <div className="paiement-card">
+                            <div className="paiement-titre">💳 Paiement sécurisé</div>
+                            <div className="paiement-simu">⚠️ Simulation pédagogique</div>
+
+                            {/* Carte CB visuelle */}
+                            <div className="carte-cb">
+                                <div style={{fontSize:'12px', color:'#D6E4F0'}}>VOYAGE VISTA</div>
+                                <div className="carte-cb-num">
+                                    {numeroCarte || '4242  4242  4242  4242'}
+                                </div>
+                                <div className="carte-cb-footer">
+                                    <div>
+                                        <div className="carte-cb-label">Titulaire</div>
+                                        <div className="carte-cb-valeur">
+                                            {titulaire || 'VOTRE NOM'}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="carte-cb-label">Expire</div>
+                                        <div className="carte-cb-valeur">
+                                            {expiration || 'MM/AA'}
+                                        </div>
+                                    </div>
+                                    <div className="visa-logo">VISA</div>
+                                </div>
+                            </div>
+
+                            {erreur && (
+                                <div style={{
+                                    background:'#FCEBEB', color:'#A32D2D',
+                                    padding:'10px', borderRadius:'4px',
+                                    fontSize:'12px', marginBottom:'12px'
+                                }}>
+                                    {erreur}
+                                </div>
+                            )}
+
+                            <form onSubmit={validerPaiement}>
+                                <div className="form-group">
+                                    <label>Numéro de carte</label>
+                                    <input
+                                        type="text"
+                                        placeholder="4242 4242 4242 4242"
+                                        value={numeroCarte}
+                                        onChange={e => setNumeroCarte(formatCarte(e.target.value))}
+                                        maxLength="19"
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label>Nom du titulaire</label>
+                                    <input
+                                        type="text"
+                                        placeholder="NOM PRENOM"
+                                        value={titulaire}
+                                        style={{fontFamily:'Arial'}}
+                                        onChange={e => setTitulaire(e.target.value.toUpperCase())}
+                                    />
+                                </div>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Date d'expiration</label>
+                                        <input
+                                            type="text"
+                                            placeholder="MM/AA"
+                                            value={expiration}
+                                            onChange={e => setExpiration(formatExpiration(e.target.value))}
+                                            maxLength="5"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>CVV</label>
+                                        <input
+                                            type="text"
+                                            placeholder="123"
+                                            value={cvv}
+                                            onChange={e => setCvv(e.target.value.replace(/\D/g,'').slice(0,3))}
+                                            maxLength="3"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={{
+                                    background:'#F8F6F1', borderRadius:'4px',
+                                    padding:'12px', marginBottom:'12px',
+                                    display:'flex', justifyContent:'space-between',
+                                    alignItems:'center'
+                                }}>
+                                    <span style={{fontSize:'13px', color:'#6B7280'}}>
+                                        Total à payer
+                                    </span>
+                                    <span style={{fontSize:'20px', fontWeight:'bold', color:'#1B2A4A'}}>
+                                        {total.toLocaleString()} €
+                                    </span>
+                                </div>
+
+                                <button type="submit" className="btn-payer" disabled={loading}>
+                                    {loading ? '⏳ Traitement en cours...' : `🔒 Payer ${total.toLocaleString()} €`}
+                                </button>
+                            </form>
+
+                            <div className="securite-badges">
+                                <span className="securite-badge">🔒 SSL</span>
+                                <span className="securite-badge">✅ 3D Secure</span>
+                                <span className="securite-badge">🛡️ PCI DSS</span>
+                            </div>
+
+                            <button style={{
+                                width:'100%', background:'none', border:'none',
+                                color:'#6B7280', cursor:'pointer', fontSize:'12px',
+                                marginTop:'12px', textDecoration:'underline'
+                            }} onClick={() => setEtape(1)}>
+                                ← Retour au panier
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {etape === 1 && (
+                    <div style={{width:'340px', flexShrink:0}}>
+                        <div style={{
+                            background:'white', borderRadius:'8px',
+                            border:'1px solid #E2DDD6', padding:'20px'
+                        }}>
+                            <div style={{fontSize:'14px', fontWeight:'bold', color:'#1B2A4A', marginBottom:'12px'}}>
+                                Récapitulatif
+                            </div>
+                            <div style={{fontSize:'13px', color:'#6B7280', lineHeight:'1.8'}}>
+                                📍 Destination : <strong>{panier.destination}</strong><br/>
+                                📅 Du {panier.dateArrivee} au {panier.dateDepart}<br/>
+                                👥 {panier.nbVoyageurs} voyageur(s)<br/>
+                                🌙 {nuits} nuit(s)
+                            </div>
+                            <div style={{
+                                borderTop:'1px solid #E2DDD6', marginTop:'12px',
+                                paddingTop:'12px', fontSize:'16px',
+                                fontWeight:'bold', color:'#1B2A4A',
+                                display:'flex', justifyContent:'space-between'
+                            }}>
+                                <span>Total</span>
+                                <span>{total.toLocaleString()} €</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <footer>
+                © 2026 VoyageVista — FARES · BENZIDOUN · ADDOU · ANDRIAMPARANY
+            </footer>
+        </div>
+    );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>
